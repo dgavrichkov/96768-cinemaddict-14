@@ -7,6 +7,7 @@ import { filmCard } from './view/film-card.js';
 import { showMore } from './view/show-more';
 import { statistics } from './view/statistics';
 import { filmDetails } from './view/film-details';
+import { userStatistics } from './view/user-statistics';
 
 const MAIN_LIST_COUNT = 5;
 const EXTRA_LIST_COUNT = 2;
@@ -50,8 +51,9 @@ for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
 
 render(filmsMainList, showMore(), 'beforeend');
 
-const footerStat = siteFooterEl.querySelector('.footer__statistics');
+render(siteMainEl, userStatistics(), 'beforeend');
 
+const footerStat = siteFooterEl.querySelector('.footer__statistics');
 render(footerStat, statistics(), 'beforeend');
 
 render(siteFooterEl, filmDetails(), 'afterend');
