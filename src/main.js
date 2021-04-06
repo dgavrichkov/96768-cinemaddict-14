@@ -8,6 +8,8 @@ import { getShowMoreTemplate } from './view/show-more';
 import { getStatisticsTemplate } from './view/statistics';
 import { getFilmDetailsTemplate } from './view/film-details';
 import { getUserStatisticsTemplate } from './view/user-statistics';
+import { generateFilm } from './mock/film';
+
 
 const MAIN_LIST_COUNT = 5;
 const EXTRA_LIST_COUNT = 2;
@@ -56,4 +58,7 @@ render(siteMainEl, getUserStatisticsTemplate(), 'beforeend');
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
 render(footerStat, getStatisticsTemplate(), 'beforeend');
 
-render(siteFooterEl, getFilmDetailsTemplate(), 'afterend');
+// render(siteFooterEl, getFilmDetailsTemplate(), 'afterend');
+
+const film = generateFilm();
+console.log(film);
