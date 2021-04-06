@@ -13,6 +13,7 @@
     "css-loader": "5.0.1",
     "eslint": "7.13.0",
     "eslint-config-htmlacademy": "3.0.0",
+    "nanoid": "3.1.22",
     "style-loader": "2.0.0",
     "webpack": "^4.44.2",
     "webpack-cli": "3.3.12",
@@ -31,5 +32,8 @@
   "bugs": {
     "url": "https://github.com/dgavrichkov/96768-cinemaddict-14/issues"
   },
-  "homepage": "https://github.com/dgavrichkov/96768-cinemaddict-14#readme"
+  "homepage": "https://github.com/dgavrichkov/96768-cinemaddict-14#readme",
+  "dependencies": {
+    "dayjs": "1.9.5"
+  }
 }
