@@ -1,4 +1,4 @@
-export const filmsList = (isExtra, dataId) => {
+export const getFilmsListTemplate = (isExtra, dataId) => {
   let title = '';
   switch(dataId) {
     case 'top-rated':

@@ -1,4 +1,4 @@
-export const userStatistics = () => {
+export const getUserStatisticsTemplate = () => {
   return `
     <section class="statistic">
       <p class="statistic__rank">

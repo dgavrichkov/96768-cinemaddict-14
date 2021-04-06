@@ -1,4 +1,4 @@
-export const filmDetails = () => {
+export const getFilmDetailsTemplate = () => {
   return `
     <section class="film-details">
       <form class="film-details__inner" action="" method="get">

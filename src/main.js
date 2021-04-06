@@ -1,13 +1,13 @@
-import { profile } from './view/profile.js';
-import { menu } from './view/menu.js';
-import { sort } from './view/sort.js';
-import { films } from './view/films.js';
-import { filmsList } from './view/films-list.js';
-import { filmCard } from './view/film-card.js';
-import { showMore } from './view/show-more';
-import { statistics } from './view/statistics';
-import { filmDetails } from './view/film-details';
-import { userStatistics } from './view/user-statistics';
+import { getProfileTemplate } from './view/profile.js';
+import { getMenuTemplate } from './view/menu.js';
+import { getSortTemplate } from './view/sort.js';
+import { getFilmsTemplate } from './view/films.js';
+import { getFilmsListTemplate } from './view/films-list.js';
+import { getFilmCardTemplate } from './view/film-card.js';
+import { getShowMoreTemplate } from './view/show-more';
+import { getStatisticsTemplate } from './view/statistics';
+import { getFilmDetailsTemplate } from './view/film-details';
+import { getUserStatisticsTemplate } from './view/user-statistics';
 
 const MAIN_LIST_COUNT = 5;
 const EXTRA_LIST_COUNT = 2;
@@ -20,40 +20,40 @@ const siteHeaderEl = document.querySelector('.header');
 const siteMainEl = document.querySelector('.main');
 const siteFooterEl = document.querySelector('.footer');
 
-render(siteHeaderEl, profile(), 'beforeend');
-render(siteMainEl, menu(), 'beforeend');
-render(siteMainEl, sort(), 'beforeend');
-render(siteMainEl, films(), 'beforeend');
+render(siteHeaderEl, getProfileTemplate(), 'beforeend');
+render(siteMainEl, getMenuTemplate(), 'beforeend');
+render(siteMainEl, getSortTemplate(), 'beforeend');
+render(siteMainEl, getFilmsTemplate(), 'beforeend');
 
 const filmsContainer = siteMainEl.querySelector('.films');
 
-render(filmsContainer, filmsList(false, 'list'), 'beforeend');
-render(filmsContainer, filmsList(true, 'top-rated'), 'beforeend');
-render(filmsContainer, filmsList(true, 'most-commented'), 'beforeend');
+render(filmsContainer, getFilmsListTemplate(false, 'list'), 'beforeend');
+render(filmsContainer, getFilmsListTemplate(true, 'top-rated'), 'beforeend');
+render(filmsContainer, getFilmsListTemplate(true, 'most-commented'), 'beforeend');
 
 const filmsMainList = filmsContainer.querySelector('[data-id=list]');
 const filmsMainListContainer = filmsMainList.querySelector('.films-list__container');
 
 for(let i = 0; i < MAIN_LIST_COUNT; i++) {
-  render(filmsMainListContainer, filmCard(), 'beforeend');
+  render(filmsMainListContainer, getFilmCardTemplate(), 'beforeend');
 }
 
 const filmsTopRatedContainer = filmsContainer.querySelector('[data-id=top-rated] .films-list__container');
 const filmsMostCommentContainer = filmsContainer.querySelector('[data-id=most-commented] .films-list__container');
 
 for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
-  render(filmsTopRatedContainer, filmCard(), 'beforeend');
+  render(filmsTopRatedContainer, getFilmCardTemplate(), 'beforeend');
 }
 
 for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
-  render(filmsMostCommentContainer, filmCard(), 'beforeend');
+  render(filmsMostCommentContainer, getFilmCardTemplate(), 'beforeend');
 }
 
-render(filmsMainList, showMore(), 'beforeend');
+render(filmsMainList, getShowMoreTemplate(), 'beforeend');
 
-render(siteMainEl, userStatistics(), 'beforeend');
+render(siteMainEl, getUserStatisticsTemplate(), 'beforeend');
 
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
-render(footerStat, statistics(), 'beforeend');
+render(footerStat, getStatisticsTemplate(), 'beforeend');
 
-render(siteFooterEl, filmDetails(), 'afterend');
+render(siteFooterEl, getFilmDetailsTemplate(), 'afterend');
