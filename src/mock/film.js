@@ -1,49 +1,7 @@
 import { nanoid } from 'nanoid';
 import dayjs from 'dayjs';
 import { getRandomInteger } from '../utils.js';
-
-const FILM_NAMES = new Map([
-  ['Lord of The Rings', 'Fellowship of The Ring'],
-  ['Джентльмены', 'The Gentlemen'],
-  ['Шанхайский полдень', 'Shanghai Noon'],
-  ['Расплата', 'The Accountant'],
-  ['Короли улиц', 'Street Kings'],
-  ['Пес-призрак: Путь самурая', 'Ghost Dog: The Way of the Samurai'],
-  ['Леон', 'Léon'],
-  ['Тайлер Рейк: Операция по спасению', 'Extraction'],
-  ['Олдбой', 'Oldeuboi'],
-  ['Тройная граница', 'Triple Frontier'],
-  ['Дьявол всегда здесь', 'The Devil All the Time'],
-  ['Поезд на Юму', '3:10 to Yuma'],
-  ['Гладиатор', 'Gladiator'],
-  ['Изгой-один: Звёздные войны. Истории', 'Rogue One'],
-  ['Шрэк', 'Shrek'],
-  ['Крестный отец', 'The Godfather'],
-  ['Зеленая книга', 'Green Book'],
-  ['Храброе сердце', 'Braveheart'],
-]);
-const DESCRIPTION = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.';
-const POSTERS_DIR_PATH = './images/posters/';
-const POSTERS = [
-  'made-for-each-other.png',
-  'popeye-meets-sinbad.png',
-  'sagebrush-trail.jpg',
-  'santa-claus-conquers-the-martians.jpg',
-  'the-dance-of-life.jpg',
-  'the-great-flamarion.jpg',
-  'the-man-with-the-golden-arm.jpg',
-];
-const GENRES = [
-  'Вестерн',
-  'Триллер',
-  'Семейный фильм',
-  'Боевик',
-  'Исторический',
-  'Мелодрама',
-  'Фэнтези',
-  'Приключения',
-  'Драма',
-];
+import { GENRES, DESCRIPTION, POSTERS_DIR_PATH, POSTERS, EMOTIONS, FILM_NAMES } from '../const.js';
 
 const filmNamesList = Array.from(FILM_NAMES.keys());
 // const filmAltNamesList = Array.from(filmNamesMap.values());
@@ -53,7 +11,9 @@ const generateFilmName = () => {
   const filmName = filmNamesList[randIdx];
   return filmName;
 };
-
+const getOriginName = (name) => {
+  return FILM_NAMES.get(name);
+};
 const generateFilmDescription = (string) => {
   const sentencesArr = DESCRIPTION.split('. ');
   const sentencesCount = getRandomInteger(1, 5);
@@ -70,10 +30,8 @@ const generateFilmDescription = (string) => {
 };
 
 const generateFilmRuntime = () => {
-  const hours = getRandomInteger(1, 3);
-  const minutes = getRandomInteger(0, 59);
-  const time = `${hours}h ${minutes ? minutes :'00'}m`;
-  return time;
+  const time = getRandomInteger(90, 220);
+  return `${Math.floor(time/60)}h ${time%60}min`;
 };
 
 const generateFilmRating = () => {
@@ -91,21 +49,39 @@ const generateFilmPoster = () => {
   return POSTERS_DIR_PATH + POSTERS[idx];
 };
 
-const generateFilmGenre = (single) => {
+const generateFilmGenre = () => {
   return GENRES[getRandomInteger(0, GENRES.length - 1)];
 };
 
+// TODO - сгенерировать массив комментариев
+const generateFilmCommentsCount = () => {
+  const commentsCount = getRandomInteger(0, 5);
+  return commentsCount;
+};
+// TODO - срандомить дату в формате dayjs, чтобы можно было вывести подробную дату в попапе
+const generateFilmReleaseDate = () => {
+  const release = dayjs();
+  return release;
+};
+
 export const generateFilm = () => {
-  const id = nanoid();
+  const name = generateFilmName();
+  const year = generateFilmReleaseDate().year();
   return {
-    id,
-    name: generateFilmName(),
+    id: nanoid(),
+    name,
+    originName: getOriginName(name),
     poster: generateFilmPoster(),
     description: generateFilmDescription(DESCRIPTION),
-    comments: [],
-    total_rating: generateFilmRating(),
-    release_date: null,
+    comments: generateFilmCommentsCount(),
+    rating: generateFilmRating(),
+    releaseYear: year,
     runtime: generateFilmRuntime(),
     genre: generateFilmGenre(),
+    ageRating: null,
+    director: '',
+    writers: [],
+    actors: [],
+    watchlist: false,
   };
 };

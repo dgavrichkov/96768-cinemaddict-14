@@ -11,8 +11,13 @@ import { getUserStatisticsTemplate } from './view/user-statistics';
 import { generateFilm } from './mock/film';
 
 
-const MAIN_LIST_COUNT = 5;
 const EXTRA_LIST_COUNT = 2;
+const FILMS_COUNT = 22;
+const FILMS_COUNT_PER_STEP = 5;
+
+const films = new Array(FILMS_COUNT).fill().map(generateFilm);
+const topRatedfilms = new Array(EXTRA_LIST_COUNT).fill().map(generateFilm);
+const mostCommentedFilms = new Array(EXTRA_LIST_COUNT).fill().map(generateFilm);
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
@@ -36,20 +41,27 @@ render(filmsContainer, getFilmsListTemplate(true, 'most-commented'), 'beforeend'
 const filmsMainList = filmsContainer.querySelector('[data-id=list]');
 const filmsMainListContainer = filmsMainList.querySelector('.films-list__container');
 
-for(let i = 0; i < MAIN_LIST_COUNT; i++) {
-  render(filmsMainListContainer, getFilmCardTemplate(), 'beforeend');
+// список фильмов
+for(let i = 0; i < Math.min(films.length, FILMS_COUNT_PER_STEP); i++) {
+  render(filmsMainListContainer, getFilmCardTemplate(films[i]), 'beforeend');
 }
 
 const filmsTopRatedContainer = filmsContainer.querySelector('[data-id=top-rated] .films-list__container');
 const filmsMostCommentContainer = filmsContainer.querySelector('[data-id=most-commented] .films-list__container');
 
+// временное наполнение экстра-списков
+// TODO - отфильтровать соответствующие фильмы
+
+// список самых рейтинговых
 for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
-  render(filmsTopRatedContainer, getFilmCardTemplate(), 'beforeend');
+  render(filmsTopRatedContainer, getFilmCardTemplate(topRatedfilms[i]), 'beforeend');
 }
 
+// список самых комментируемых
 for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
-  render(filmsMostCommentContainer, getFilmCardTemplate(), 'beforeend');
+  render(filmsMostCommentContainer, getFilmCardTemplate(mostCommentedFilms[i]), 'beforeend');
 }
+
 
 render(filmsMainList, getShowMoreTemplate(), 'beforeend');
 
@@ -60,5 +72,5 @@ render(footerStat, getStatisticsTemplate(), 'beforeend');
 
 // render(siteFooterEl, getFilmDetailsTemplate(), 'afterend');
 
-const film = generateFilm();
-console.log(film);
+
+// console.log(films);
