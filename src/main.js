@@ -70,7 +70,20 @@ render(siteMainEl, getUserStatisticsTemplate(), 'beforeend');
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
 render(footerStat, getStatisticsTemplate(), 'beforeend');
 
-// render(siteFooterEl, getFilmDetailsTemplate(), 'afterend');
+// ТУДУ - рендер попапа по клику на постер.
+render(siteFooterEl, getFilmDetailsTemplate(), 'afterend');
+const posters = document.querySelectorAll('.film-card__poster');
+const popup = document.querySelector('.film-details');
+const popupClose = popup.querySelector('.film-details__close');
+
+popupClose.addEventListener('click', () => {
+  popup.setAttribute('hidden', 'true');
+});
+posters.forEach((poster) => {
+  poster.addEventListener('click', () => {
+    popup.removeAttribute('hidden');
+  });
+});
 
 
 // console.log(films);
