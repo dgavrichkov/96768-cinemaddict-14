@@ -1,3 +1,5 @@
+import { trimDescription } from '../utils';
+
 export const getFilmCardTemplate = (film) => {
   const { name, poster, description, comments, rating, releaseYear, runtime, genre } = film;
 
@@ -11,7 +13,7 @@ export const getFilmCardTemplate = (film) => {
         <span class="film-card__genre">${genre}</span>
       </p>
       <img src="${poster}" alt="${name}" class="film-card__poster">
-      <p class="film-card__description">${description}</p>
+      <p class="film-card__description">${trimDescription(description)}</p>
       <a class="film-card__comments">${comments} comments</a>
       <div class="film-card__controls">
         <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>

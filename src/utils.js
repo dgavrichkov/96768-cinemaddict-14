@@ -8,3 +8,12 @@ export const getRandomInteger = (a = 0, b = 1) => {
 
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
+
+export const trimDescription = (description) => {
+  if(description.length <= 140) {
+    return description;
+  }
+
+  const shortDescription = description.slice(0, 139).trim() + '...';
+  return shortDescription;
+};
