@@ -1,14 +1,14 @@
-import { getProfileTemplate } from './view/profile.js';
-import { getMenuTemplate } from './view/menu.js';
-import { getSortTemplate } from './view/sort.js';
-import { getFilmsTemplate } from './view/films.js';
-import { getFilmsListTemplate } from './view/films-list.js';
-import { getFilmCardTemplate } from './view/film-card.js';
-import { getShowMoreTemplate } from './view/show-more';
-import { getStatisticsTemplate } from './view/statistics';
-import { getFilmDetailsTemplate } from './view/film-details';
-import { getUserStatisticsTemplate } from './view/user-statistics';
-import { generateFilm } from './mock/film';
+import {getProfileTemplate} from './view/profile.js';
+import {getMenuTemplate} from './view/menu.js';
+import {getSortTemplate} from './view/sort.js';
+import {getFilmsTemplate} from './view/films.js';
+import {getFilmsListTemplate} from './view/films-list.js';
+import {getFilmCardTemplate} from './view/film-card.js';
+import {getShowMoreTemplate} from './view/show-more';
+import {getStatisticsTemplate} from './view/statistics';
+import {getFilmDetailsTemplate} from './view/film-details';
+import {getUserStatisticsTemplate} from './view/user-statistics';
+import {generateFilm} from './mock/film';
 
 
 const EXTRA_LIST_COUNT = 2;
@@ -16,6 +16,7 @@ const FILMS_COUNT = 22;
 const FILMS_COUNT_PER_STEP = 5;
 
 const films = new Array(FILMS_COUNT).fill().map(generateFilm);
+
 const topRatedfilms = new Array(EXTRA_LIST_COUNT).fill().map(generateFilm);
 const mostCommentedFilms = new Array(EXTRA_LIST_COUNT).fill().map(generateFilm);
 
@@ -70,20 +71,20 @@ render(siteMainEl, getUserStatisticsTemplate(), 'beforeend');
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
 render(footerStat, getStatisticsTemplate(), 'beforeend');
 
-// ТУДУ - рендер попапа по клику на постер.
-render(siteFooterEl, getFilmDetailsTemplate(), 'afterend');
 const posters = document.querySelectorAll('.film-card__poster');
-const popup = document.querySelector('.film-details');
-const popupClose = popup.querySelector('.film-details__close');
 
-popupClose.addEventListener('click', () => {
-  popup.setAttribute('hidden', 'true');
-});
 posters.forEach((poster) => {
-  poster.addEventListener('click', () => {
-    popup.removeAttribute('hidden');
+  poster.addEventListener('click', (e) => {
+    const id = e.target.closest('.film-card').dataset.id;
+    const chosenFilm = films.find((item) => {
+      return item.id === id;
+    });
+    render(siteFooterEl, getFilmDetailsTemplate(chosenFilm), 'afterend');
   });
 });
 
-
-// console.log(films);
+document.addEventListener('click', (e) => {
+  if(e.target.closest('.film-details__close')) {
+    e.target.closest('.film-details').remove();
+  }
+});

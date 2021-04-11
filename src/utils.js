@@ -1,4 +1,4 @@
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 // Функция из интернета по генерации случайного числа из диапазона
 // Источник - https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_random
@@ -16,4 +16,38 @@ export const trimDescription = (description) => {
 
   const shortDescription = description.slice(0, 139).trim() + '...';
   return shortDescription;
+};
+
+export const defindRateColor = (rate) => {
+  let sign = 'average';
+  if(rate > 7) {
+    sign = 'good';
+  }
+  if(rate < 4) {
+    sign = 'poor';
+  }
+  return sign;
+};
+
+export const formatCommentDate = (date) => {
+  const currDay = dayjs().date();
+  const commentDay = dayjs(date).date();
+  const dayDiff = currDay - commentDay;
+  let commentDate = '';
+  if(dayDiff === 0) {
+    return commentDate = 'Today';
+  }
+  if(dayDiff <= 2 && dayDiff > 0) {
+    let val = 'days';
+    if(dayDiff === 1) {
+      val = 'day';
+    }
+    return commentDate = `${dayDiff} ${val} ago`;
+  }
+  commentDate = dayjs(date).format('YYYY/MM/DD hh:mm');
+  return commentDate;
+};
+
+export const defindGenreSign = (list) => {
+  return (list.length > 1) ? 'Genres' : 'Genre';
 };
