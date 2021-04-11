@@ -4,7 +4,6 @@ import {getRandomInteger} from '../utils.js';
 import {GENRES, DESCRIPTION, POSTERS_DIR_PATH, POSTERS, EMOTIONS, FILM_NAMES, AGE_RATES, FILM_DIRECTORS, WRITERS, ACTORS, COMMENT_TEXTS, COMMENT_AUTHOR, COUNTRIES} from '../mock/mock-const.js';
 
 const filmNamesList = Array.from(FILM_NAMES.keys());
-// const filmAltNamesList = Array.from(filmNamesMap.values());
 
 const generateFilmName = () => {
   const randIdx = getRandomInteger(0, filmNamesList.length - 1);
@@ -32,8 +31,7 @@ const generateFilmDescription = () => {
 };
 
 const generateFilmRuntime = () => {
-  const time = getRandomInteger(90, 220);
-  return `${Math.floor(time/60)}h ${time%60}m`;
+  return getRandomInteger(90, 220);
 };
 
 const generateFilmRating = () => {

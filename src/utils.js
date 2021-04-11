@@ -51,3 +51,11 @@ export const formatCommentDate = (date) => {
 export const defindGenreSign = (list) => {
   return (list.length > 1) ? 'Genres' : 'Genre';
 };
+
+export const userFilms = (films) => {
+  return films.filter((film) => film.userAction.alreadyWatched === true);
+};
+
+export const minutesToFormat = (minutes) => {
+  return `${Math.floor(minutes/60)}h ${minutes%60}m`;
+};

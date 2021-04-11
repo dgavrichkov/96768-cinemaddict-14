@@ -4,14 +4,14 @@ import {getSortTemplate} from './view/sort.js';
 import {getFilmsTemplate} from './view/films.js';
 import {getFilmsListTemplate} from './view/films-list.js';
 import {getFilmCardTemplate} from './view/film-card.js';
-import {getShowMoreTemplate} from './view/show-more';
-import {getStatisticsTemplate} from './view/statistics';
-import {getFilmDetailsTemplate} from './view/film-details';
-import {getUserStatisticsTemplate} from './view/user-statistics';
-import {generateFilm} from './mock/film';
-import {generateFilter} from './mock/filter';
-import {generateUserstat} from './mock/userStat';
-
+import {getShowMoreTemplate} from './view/show-more.js';
+import {getStatisticsTemplate} from './view/statistics.js';
+import {getFilmDetailsTemplate} from './view/film-details.js';
+import {getUserStatisticsTemplate} from './view/user-statistics.js';
+import {generateFilm} from './mock/film.js';
+import {generateFilter} from './mock/filter.js';
+import {generateUserstat} from './mock/userStat.js';
+import {userFilms} from './utils.js';
 
 const EXTRA_LIST_COUNT = 2;
 const FILMS_COUNT = 22;
@@ -19,7 +19,7 @@ const FILMS_COUNT_PER_STEP = 5;
 
 const films = new Array(FILMS_COUNT).fill().map(generateFilm);
 const filters = generateFilter(films);
-const userStat = generateUserstat(films);
+const userStat = generateUserstat(userFilms(films));
 
 const topRatedfilms = new Array(EXTRA_LIST_COUNT).fill().map(generateFilm);
 const mostCommentedFilms = new Array(EXTRA_LIST_COUNT).fill().map(generateFilm);
@@ -32,7 +32,7 @@ const siteHeaderEl = document.querySelector('.header');
 const siteMainEl = document.querySelector('.main');
 const siteFooterEl = document.querySelector('.footer');
 
-render(siteHeaderEl, getProfileTemplate(), 'beforeend');
+render(siteHeaderEl, getProfileTemplate(userStat), 'beforeend');
 render(siteMainEl, getMenuTemplate(filters), 'beforeend');
 render(siteMainEl, getSortTemplate(), 'beforeend');
 render(siteMainEl, getFilmsTemplate(), 'beforeend');

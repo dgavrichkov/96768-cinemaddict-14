@@ -1,4 +1,4 @@
-import {trimDescription, defindRateColor} from '../utils';
+import {trimDescription, defindRateColor, minutesToFormat} from '../utils';
 
 export const getFilmCardTemplate = (film) => {
   const {id, name, poster, description, comments, rating, releaseYear, runtime, genres} = film;
@@ -9,7 +9,7 @@ export const getFilmCardTemplate = (film) => {
       <p class="film-card__rating film-card__rating--${defindRateColor(rating)}">${rating}</p>
       <p class="film-card__info">
         <span class="film-card__year">${releaseYear}</span>
-        <span class="film-card__duration">${runtime}</span>
+        <span class="film-card__duration">${minutesToFormat(runtime)}</span>
         <span class="film-card__genre">${genres[0]}</span>
       </p>
       <img src="${poster}" alt="${name}" class="film-card__poster">
