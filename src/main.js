@@ -69,7 +69,7 @@ render(filmsMainList, getShowMoreTemplate(), 'beforeend');
 render(siteMainEl, getUserStatisticsTemplate(), 'beforeend');
 
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
-render(footerStat, getStatisticsTemplate(), 'beforeend');
+render(footerStat, getStatisticsTemplate(films), 'beforeend');
 
 const posters = document.querySelectorAll('.film-card__poster');
 
