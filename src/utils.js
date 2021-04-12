@@ -59,3 +59,19 @@ export const userFilms = (films) => {
 export const minutesToFormat = (minutes) => {
   return `${Math.floor(minutes/60)}h ${minutes%60}m`;
 };
+
+export const sortFilmsByRates = (films) => {
+  const sortFilms = [...films];
+  sortFilms.sort((a, b) => {
+    return Math.floor(b.rating - a.rating);
+  });
+  return sortFilms;
+};
+
+export const sortFilmsByComments = (films) => {
+  const sortFilms = [...films];
+  sortFilms.sort((a, b) => {
+    return Math.floor(b.comments.length - a.comments.length);
+  });
+  return sortFilms;
+};

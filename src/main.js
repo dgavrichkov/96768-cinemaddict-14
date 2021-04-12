@@ -11,7 +11,7 @@ import {getUserStatisticsTemplate} from './view/user-statistics.js';
 import {generateFilm} from './mock/film.js';
 import {generateFilter} from './mock/filter.js';
 import {generateUserstat} from './mock/userStat.js';
-import {userFilms} from './utils.js';
+import {userFilms, sortFilmsByComments, sortFilmsByRates} from './utils.js';
 
 const EXTRA_LIST_COUNT = 2;
 const FILMS_COUNT = 22;
@@ -20,9 +20,6 @@ const FILMS_COUNT_PER_STEP = 5;
 const films = new Array(FILMS_COUNT).fill().map(generateFilm);
 const filters = generateFilter(films);
 const userStat = generateUserstat(userFilms(films));
-
-const topRatedfilms = new Array(EXTRA_LIST_COUNT).fill().map(generateFilm);
-const mostCommentedFilms = new Array(EXTRA_LIST_COUNT).fill().map(generateFilm);
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
@@ -55,13 +52,13 @@ const filmsTopRatedContainer = filmsContainer.querySelector('[data-id=top-rated]
 const filmsMostCommentContainer = filmsContainer.querySelector('[data-id=most-commented] .films-list__container');
 
 // временное наполнение экстра-списков
-// TODO - отфильтровать соответствующие фильмы
+const topRatedFilms = sortFilmsByRates(films);
+const mostCommentedFilms = sortFilmsByComments(films);
 
 // список самых рейтинговых
 for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
-  render(filmsTopRatedContainer, getFilmCardTemplate(topRatedfilms[i]), 'beforeend');
+  render(filmsTopRatedContainer, getFilmCardTemplate(topRatedFilms[i]), 'beforeend');
 }
-
 // список самых комментируемых
 for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
   render(filmsMostCommentContainer, getFilmCardTemplate(mostCommentedFilms[i]), 'beforeend');
