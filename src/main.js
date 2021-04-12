@@ -64,8 +64,22 @@ for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
   render(filmsMostCommentContainer, getFilmCardTemplate(mostCommentedFilms[i]), 'beforeend');
 }
 
+if(films.length > FILMS_COUNT_PER_STEP) {
+  let renderedFilmsCount = FILMS_COUNT_PER_STEP;
+  render(filmsMainList, getShowMoreTemplate(), 'beforeend');
+  const showMoreBtn = document.querySelector('.films-list__show-more');
+  showMoreBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    films
+      .slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP)
+      .forEach((film) => render(filmsMainListContainer, getFilmCardTemplate(film), 'beforeend'));
+    renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
-render(filmsMainList, getShowMoreTemplate(), 'beforeend');
+    if(renderedFilmsCount >= films.length) {
+      showMoreBtn.remove();
+    }
+  });
+}
 
 render(siteMainEl, getUserStatisticsTemplate(userStat), 'beforeend');
 
