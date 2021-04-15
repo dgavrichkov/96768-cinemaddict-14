@@ -1,4 +1,4 @@
-export const getMenuTemplate = (filter) => {
+const createMenuTemplate = (filter) => {
   const {watchlist, favorite, history} = filter;
 
   return `
@@ -13,3 +13,13 @@ export const getMenuTemplate = (filter) => {
     </nav>
   `;
 };
+
+export class Menu {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createMenuTemplate();
+  }
+}

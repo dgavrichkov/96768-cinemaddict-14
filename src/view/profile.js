@@ -1,4 +1,4 @@
-export const getProfileTemplate = (userStat) => {
+const createProfileTemplate = (userStat) => {
   const {userRank} = userStat;
   return `
     <section class="header__profile profile">
@@ -7,3 +7,13 @@ export const getProfileTemplate = (userStat) => {
     </section>
   `;
 };
+
+export class Profile {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createProfileTemplate();
+  }
+}

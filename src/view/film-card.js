@@ -1,6 +1,6 @@
 import {trimDescription, defindRateColor, minutesToFormat} from '../utils';
 
-export const getFilmCardTemplate = (film) => {
+const createFilmCardTemplate = (film) => {
   const {id, name, poster, description, comments, rating, releaseYear, runtime, genres} = film;
 
   return `
@@ -23,3 +23,13 @@ export const getFilmCardTemplate = (film) => {
     </article>
   `;
 };
+
+export class FilmCard {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmCardTemplate();
+  }
+}

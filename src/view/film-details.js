@@ -1,12 +1,12 @@
 import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils';
 
-const getGenreItem = (genre) => {
+const createGenreItem = (genre) => {
   return `
     <span class="film-details__genre">${genre}</span>
   `;
 };
 // TODO - format comment date to string like '2 days ago'
-const getCommentItem = (comment) => {
+const createCommentItem = (comment) => {
   const {emoji, text, author, date} = comment;
   return `
     <li class="film-details__comment">
@@ -25,15 +25,15 @@ const getCommentItem = (comment) => {
   `;
 };
 
-export const getFilmDetailsTemplate = (film) => {
+export const createFilmDetailsTemplate = (film) => {
   const {name, originName, poster, ageRating, description, rating, releaseDate, country, genres, director, writers, actors, runtime, userAction, comments} = film;
 
   const genreItemsList = genres.map((genre) => {
-    return getGenreItem(genre);
+    return createGenreItem(genre);
   }).join('');
 
   const commentsList = comments.map((comment) => {
-    return getCommentItem(comment);
+    return createCommentItem(comment);
   }).join('');
 
   return `
@@ -155,3 +155,13 @@ export const getFilmDetailsTemplate = (film) => {
     </section>
   `;
 };
+
+export class FilmDetails {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmDetailsTemplate();
+  }
+}

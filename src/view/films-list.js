@@ -1,4 +1,4 @@
-export const getFilmsListTemplate = (isExtra, dataId) => {
+const createFilmsListTemplate = (isExtra, dataId) => {
   let title = '';
   switch(dataId) {
     case 'top-rated':
@@ -23,3 +23,13 @@ export const getFilmsListTemplate = (isExtra, dataId) => {
     </section>
   `;
 };
+
+export class FilmsList {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmsListTemplate();
+  }
+}

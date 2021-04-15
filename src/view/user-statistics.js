@@ -1,10 +1,10 @@
-const getDurationTemplate = (minutes) => {
+const createDurationTemplate = (minutes) => {
   return `
     ${Math.floor(minutes/60)}<span class="statistic__item-description">h</span> ${minutes%60}<span class="statistic__item-description">m</span>
   `;
 };
 
-export const getUserStatisticsTemplate = (userStat) => {
+const createUserStatTemplate = (userStat) => {
   const {historyCount, totalDuration, userRank, topGenre} = userStat;
 
   return `
@@ -41,7 +41,7 @@ export const getUserStatisticsTemplate = (userStat) => {
         </li>
         <li class="statistic__text-item">
           <h4 class="statistic__item-title">Total duration</h4>
-          <p class="statistic__item-text">${getDurationTemplate(totalDuration)}</p>
+          <p class="statistic__item-text">${createDurationTemplate(totalDuration)}</p>
         </li>
         <li class="statistic__text-item">
           <h4 class="statistic__item-title">Top genre</h4>
@@ -55,3 +55,13 @@ export const getUserStatisticsTemplate = (userStat) => {
     </section>
   `;
 };
+
+export class UserStat {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createUserStatTemplate();
+  }
+}
