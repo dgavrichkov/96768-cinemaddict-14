@@ -91,9 +91,7 @@ const posters = document.querySelectorAll('.film-card__poster');
 posters.forEach((poster) => {
   poster.addEventListener('click', (e) => {
     const id = e.target.closest('.film-card').dataset.id;
-    const chosenFilm = films.find((item) => {
-      return item.id === id;
-    });
+    const chosenFilm = films.find((item) => item.id === id);
     render(siteFooterEl, getFilmDetailsTemplate(chosenFilm), 'afterend');
   });
 });
