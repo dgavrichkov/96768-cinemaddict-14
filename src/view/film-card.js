@@ -1,10 +1,10 @@
 import {trimDescription, defindRateColor, minutesToFormat} from '../utils';
+import {createElement} from '../utils.js';
 
 const createFilmCardTemplate = (film) => {
   const {id, name, poster, description, comments, rating, releaseYear, runtime, genres} = film;
 
-  return `
-    <article class="film-card" data-id="${id}">
+  return `<article class="film-card" data-id="${id}">
       <h3 class="film-card__title">${name}</h3>
       <p class="film-card__rating film-card__rating--${defindRateColor(rating)}">${rating}</p>
       <p class="film-card__info">
@@ -24,12 +24,25 @@ const createFilmCardTemplate = (film) => {
   `;
 };
 
-export class FilmCard {
-  constructor() {
+export default class FilmCard {
+  constructor(film) {
     this._element = null;
+    this._film = film;
   }
 
   getTemplate() {
-    return createFilmCardTemplate();
+    return createFilmCardTemplate(this._film);
+  }
+
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
   }
 }

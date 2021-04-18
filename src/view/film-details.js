@@ -1,15 +1,14 @@
 import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils';
 
+import {createElement} from '../utils.js';
+
 const createGenreItem = (genre) => {
-  return `
-    <span class="film-details__genre">${genre}</span>
-  `;
+  return `<span class="film-details__genre">${genre}</span>`;
 };
-// TODO - format comment date to string like '2 days ago'
+
 const createCommentItem = (comment) => {
   const {emoji, text, author, date} = comment;
-  return `
-    <li class="film-details__comment">
+  return `<li class="film-details__comment">
       <span class="film-details__comment-emoji">
         <img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">
       </span>
@@ -36,8 +35,7 @@ export const createFilmDetailsTemplate = (film) => {
     return createCommentItem(comment);
   }).join('');
 
-  return `
-    <section class="film-details">
+  return `<section class="film-details">
       <form class="film-details__inner" action="" method="get">
         <div class="film-details__top-container">
           <div class="film-details__close">
@@ -156,12 +154,25 @@ export const createFilmDetailsTemplate = (film) => {
   `;
 };
 
-export class FilmDetails {
-  constructor() {
+export default class FilmDetails {
+  constructor(film) {
     this._element = null;
+    this._film = film;
   }
 
   getTemplate() {
-    return createFilmDetailsTemplate();
+    return createFilmDetailsTemplate(this._film);
+  }
+
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
   }
 }

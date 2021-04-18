@@ -1,6 +1,7 @@
+import {createElement} from '../utils.js';
+
 const createDurationTemplate = (minutes) => {
-  return `
-    ${Math.floor(minutes/60)}<span class="statistic__item-description">h</span> ${minutes%60}<span class="statistic__item-description">m</span>
+  return `${Math.floor(minutes/60)}<span class="statistic__item-description">h</span> ${minutes%60}<span class="statistic__item-description">m</span>
   `;
 };
 
@@ -56,12 +57,25 @@ const createUserStatTemplate = (userStat) => {
   `;
 };
 
-export class UserStat {
-  constructor() {
+export default class UserStat {
+  constructor(statData) {
+    this._statData = statData;
     this._element = null;
   }
 
   getTemplate() {
-    return createUserStatTemplate();
+    return createUserStatTemplate(this._statData);
+  }
+
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
   }
 }

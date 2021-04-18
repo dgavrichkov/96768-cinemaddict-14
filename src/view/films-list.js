@@ -1,3 +1,5 @@
+import {createElement} from '../utils.js';
+
 const createFilmsListTemplate = (isExtra, dataId) => {
   let title = '';
   switch(dataId) {
@@ -10,8 +12,7 @@ const createFilmsListTemplate = (isExtra, dataId) => {
     default:
       title = 'All movies. Upcoming';
   }
-  return `
-    <section
+  return `<section
       class="films-list ${isExtra ? 'films-list--extra' : ''}"
       data-id='${dataId}'
     >
@@ -24,12 +25,26 @@ const createFilmsListTemplate = (isExtra, dataId) => {
   `;
 };
 
-export class FilmsList {
-  constructor() {
+export default class FilmsList {
+  constructor(isExtra, dataId) {
     this._element = null;
+    this._isExtra = isExtra;
+    this._dataId = dataId;
   }
 
   getTemplate() {
-    return createFilmsListTemplate();
+    return createFilmsListTemplate(this._isExtra, this._dataId);
+  }
+
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
   }
 }
