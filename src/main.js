@@ -46,11 +46,11 @@ const mostCommentFilmsListContainer = mostCommentFilmsList.getElement().querySel
 
 // список фильмов
 
-// const renderFilm = (filmsListEl, film) => {
-//   const filmComponent = new FilmCardView(film);
+const renderFilm = (filmsListEl, film) => {
+  const filmComponent = new FilmCardView(film);
 
-//   render(filmsListEl, filmComponent.getElement(), RenderPosition.BEFOREEND);
-// };
+  render(filmsListEl, filmComponent.getElement(), RenderPosition.BEFOREEND);
+};
 
 for(let i = 0; i < Math.min(films.length, FILMS_COUNT_PER_STEP); i++) {
   render(regularFilmsListContainer, new FilmCardView(films[i]).getElement(), RenderPosition.BEFOREEND);
@@ -80,7 +80,7 @@ if(films.length > FILMS_COUNT_PER_STEP) {
     e.preventDefault();
     films
       .slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP)
-      .forEach((film) => render(filmsMainListContainer, new FilmCardView(film).getElement(), RenderPosition.BEFOREEND));
+      .forEach((film) => render(regularFilmsListContainer, new FilmCardView(film).getElement(), RenderPosition.BEFOREEND));
     renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
     if(renderedFilmsCount >= films.length) {
