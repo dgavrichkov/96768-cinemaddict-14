@@ -21,6 +21,8 @@ const films = new Array(FILMS_COUNT).fill().map(generateFilm);
 const filters = generateFilter(films);
 const userStat = generateUserstat(userFilms(films));
 
+const topRatedFilms = sortFilmsByRates(films);
+const mostCommentedFilms = sortFilmsByComments(films);
 
 const siteHeaderEl = document.querySelector('.header');
 const siteMainEl = document.querySelector('.main');
@@ -44,29 +46,51 @@ const regularFilmsListContainer = regularFilmsList.getElement().querySelector('.
 const topRatedFilmsListContainer = topRatedFilmsList.getElement().querySelector('.films-list__container');
 const mostCommentFilmsListContainer = mostCommentFilmsList.getElement().querySelector('.films-list__container');
 
-// список фильмов
-
 const renderFilm = (filmsListEl, film) => {
   const filmComponent = new FilmCardView(film);
+
+  const openTriggers = [
+    filmComponent.getElement().querySelector('.film-card__poster'),
+    filmComponent.getElement().querySelector('.film-card__title'),
+    filmComponent.getElement().querySelector('.film-card__comments'),
+  ];
+
+  openTriggers.forEach((trg) => {
+    trg.addEventListener('click', () => {
+      renderPopup(film);
+    });
+  });
 
   render(filmsListEl, filmComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
+const renderPopup = (film) => {
+  const popupComponent = new FilmDetailsView(film);
+  const closeTrigger = popupComponent.getElement().querySelector('.film-details__close');
+  const onClose = () => {
+    closeTrigger.removeEventListener('click', onClose);
+    document.body.classList.remove('hide-overflow');
+    popupComponent.getElement().remove();
+    popupComponent.removeElement();
+  };
+
+  document.body.classList.add('hide-overflow');
+
+  closeTrigger.addEventListener('click', onClose);
+
+  render(siteFooterEl, popupComponent.getElement(), RenderPosition.AFTEREND);
+};
+
 for(let i = 0; i < Math.min(films.length, FILMS_COUNT_PER_STEP); i++) {
-  render(regularFilmsListContainer, new FilmCardView(films[i]).getElement(), RenderPosition.BEFOREEND);
+  renderFilm(regularFilmsListContainer, films[i]);
 }
 
-// временное наполнение экстра-списков
-const topRatedFilms = sortFilmsByRates(films);
-const mostCommentedFilms = sortFilmsByComments(films);
-
-// список самых рейтинговых
 for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
-  render(topRatedFilmsListContainer, new FilmCardView(topRatedFilms[i]).getElement(), RenderPosition.BEFOREEND);
+  renderFilm(topRatedFilmsListContainer, topRatedFilms[i]);
 }
-// список самых комментируемых
+
 for(let i = 0; i < EXTRA_LIST_COUNT; i++) {
-  render(mostCommentFilmsListContainer, new FilmCardView(mostCommentedFilms[i]).getElement(), RenderPosition.BEFOREEND);
+  renderFilm(mostCommentFilmsListContainer, mostCommentedFilms[i]);
 }
 
 if(films.length > FILMS_COUNT_PER_STEP) {
@@ -80,7 +104,8 @@ if(films.length > FILMS_COUNT_PER_STEP) {
     e.preventDefault();
     films
       .slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP)
-      .forEach((film) => render(regularFilmsListContainer, new FilmCardView(film).getElement(), RenderPosition.BEFOREEND));
+      .forEach((film) => renderFilm(regularFilmsListContainer, film));
+
     renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
     if(renderedFilmsCount >= films.length) {
@@ -94,23 +119,3 @@ render(siteMainEl, new UserStatView(userStat).getElement(), RenderPosition.BEFOR
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
 
 render(footerStat, new SiteStatView(films).getElement(), RenderPosition.BEFOREEND);
-
-const posters = document.querySelectorAll('.film-card__poster');
-// обложка
-// заголовок
-// комменты
-// крестик
-
-posters.forEach((poster) => {
-  poster.addEventListener('click', (e) => {
-    const id = e.target.closest('.film-card').dataset.id;
-    const chosenFilm = films.find((item) => item.id === id);
-    render(siteFooterEl, new FilmDetailsView(chosenFilm).getElement(), RenderPosition.AFTEREND);
-  });
-});
-
-document.addEventListener('click', (e) => {
-  if(e.target.closest('.film-details__close')) {
-    e.target.closest('.film-details').remove();
-  }
-});
