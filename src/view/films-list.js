@@ -4,23 +4,23 @@ const createFilmsListTemplate = (isExtra, dataId) => {
   let title = '';
   switch(dataId) {
     case 'top-rated':
-      title = 'Top rated';
+      title = '<h2 class="films-list__title">Top rated</h2>';
       break;
     case 'most-commented':
-      title = 'Most commented';
+      title = '<h2 class="films-list__title">Most commented</h2>';
+      break;
+    case 'empty':
+      title = '<h2 class="films-list__title">There are no movies in our database</h2>';
       break;
     default:
-      title = 'All movies. Upcoming';
+      title = '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>';
   }
   return `<section
       class="films-list ${isExtra ? 'films-list--extra' : ''}"
       data-id='${dataId}'
     >
-      <h2 class="films-list__title ${!isExtra ? 'visually-hidden' : ''}">
-        ${title}
-      </h2>
-      <div class="films-list__container">
-      </div>
+      ${title}
+      ${dataId === 'empty' ? '' : '<div class="films-list__container"></div>'}
     </section>
   `;
 };

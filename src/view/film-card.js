@@ -2,6 +2,9 @@ import {trimDescription, defindRateColor, minutesToFormat} from '../utils';
 import {createElement} from '../utils.js';
 
 const createFilmCardTemplate = (film) => {
+  if(!film) {
+    return;
+  }
   const {id, name, poster, description, comments, rating, releaseYear, runtime, genres} = film;
 
   return `<article class="film-card" data-id="${id}">
