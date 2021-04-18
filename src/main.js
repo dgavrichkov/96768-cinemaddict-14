@@ -31,6 +31,7 @@ if(films.length !== 0) {
   render(siteHeaderEl, new ProfileView(userStat).getElement(), RenderPosition.BEFOREEND);
 }
 render(siteMainEl, new MenuView(filters).getElement(), RenderPosition.BEFOREEND);
+
 if(films.length !== 0) {
   render(siteMainEl, new SortView().getElement(), RenderPosition.BEFOREEND);
 }
@@ -49,15 +50,23 @@ const renderFilm = (filmsListEl, film) => {
   ];
 
   openTriggers.forEach((trg) => {
-    trg.addEventListener('click', () => {
+    trg.addEventListener('click', (e) => {
+      if(document.querySelector('.film-details')) {
+        return;
+      }
+      e.stopPropagation();
+      e.preventDefault();
       renderPopup(film);
     });
   });
+
   const renderPopup = (film) => {
     const popupComponent = new FilmDetailsView(film);
     const closeTrigger = popupComponent.getElement().querySelector('.film-details__close');
     const onClose = () => {
       closeTrigger.removeEventListener('click', onClose);
+      document.removeEventListener('click', onClose);
+
       document.body.classList.remove('hide-overflow');
       popupComponent.getElement().remove();
       popupComponent.removeElement();
@@ -66,6 +75,12 @@ const renderFilm = (filmsListEl, film) => {
     document.body.classList.add('hide-overflow');
 
     closeTrigger.addEventListener('click', onClose);
+
+    document.addEventListener('click', (e) => {
+      if(!e.target.closest('.film-details')) {
+        onClose();
+      }
+    });
 
     render(siteFooterEl, popupComponent.getElement(), RenderPosition.AFTEREND);
   };
