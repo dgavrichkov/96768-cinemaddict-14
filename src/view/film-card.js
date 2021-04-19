@@ -1,5 +1,5 @@
+import AbstractView from './abstract.js';
 import {trimDescription, defindRateColor, minutesToFormat} from '../utils';
-import {createElement} from '../utils.js';
 
 const createFilmCardTemplate = (film) => {
   if(!film) {
@@ -37,9 +37,9 @@ const createFilmCardTemplate = (film) => {
   `;
 };
 
-export default class FilmCard {
+export default class FilmCard extends AbstractView {
   constructor(film) {
-    this._element = null;
+    super();
     this._film = film;
   }
 
@@ -47,15 +47,4 @@ export default class FilmCard {
     return createFilmCardTemplate(this._film);
   }
 
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }

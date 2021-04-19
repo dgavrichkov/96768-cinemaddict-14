@@ -1,6 +1,5 @@
+import AbstractView from './abstract.js';
 import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils';
-
-import {createElement} from '../utils.js';
 
 const createGenreItem = (genre) => {
   return `<span class="film-details__genre">${genre}</span>`;
@@ -25,7 +24,23 @@ const createCommentItem = (comment) => {
 };
 
 export const createFilmDetailsTemplate = (film) => {
-  const {name, originName, poster, ageRating, description, rating, releaseDate, country, genres, director, writers, actors, runtime, userAction, comments} = film;
+  const {
+    name,
+    originName,
+    poster,
+    ageRating,
+    description,
+    rating,
+    releaseDate,
+    country,
+    genres,
+    director,
+    writers,
+    actors,
+    runtime,
+    userAction,
+    comments,
+  } = film;
 
   const genreItemsList = genres.map((genre) => {
     return createGenreItem(genre);
@@ -154,26 +169,14 @@ export const createFilmDetailsTemplate = (film) => {
   `;
 };
 
-export default class FilmDetails {
+export default class FilmDetails extends AbstractView {
   constructor(film) {
-    this._element = null;
+    super();
     this._film = film;
   }
 
   getTemplate() {
     return createFilmDetailsTemplate(this._film);
-  }
-
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   closePopup() {
