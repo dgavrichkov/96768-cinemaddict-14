@@ -1,23 +1,24 @@
 import {nanoid} from 'nanoid';
 import dayjs from 'dayjs';
 import {getRandomInteger} from '../utils.js';
-import {GENRES, DESCRIPTION, POSTERS_DIR_PATH, POSTERS, EMOTIONS, FILM_NAMES, AGE_RATES, FILM_DIRECTORS, WRITERS, ACTORS, COMMENT_TEXTS, COMMENT_AUTHOR, COUNTRIES} from '../mock/mock-const.js';
+import * as MOCKSRC from '../mock/mock-const.js';
 
-const filmNamesList = Array.from(FILM_NAMES.keys());
+const filmNamesList = Array.from(MOCKSRC.FILM_NAMES.keys());
 
 const generateFilmName = () => {
   const randIdx = getRandomInteger(0, filmNamesList.length - 1);
-  const filmName = filmNamesList[randIdx];
-  return filmName;
+  return filmNamesList[randIdx];
 };
 
 const getOriginName = (name) => {
-  return FILM_NAMES.get(name);
+  return MOCKSRC.FILM_NAMES.get(name);
 };
 
 const generateFilmDescription = () => {
-  const sentencesArr = DESCRIPTION.split('. ');
-  const sentencesCount = getRandomInteger(1, 5);
+  const SENTENEC_MIN = 1;
+  const SENTENEC_MAX = 5;
+  const sentencesArr = MOCKSRC.DESCRIPTION.split('. ');
+  const sentencesCount = getRandomInteger(SENTENEC_MIN, SENTENEC_MAX);
   const descSet = new Set();
   do {
     const idx = getRandomInteger(0, sentencesArr.length - 1);
@@ -31,7 +32,9 @@ const generateFilmDescription = () => {
 };
 
 const generateFilmRuntime = () => {
-  return getRandomInteger(90, 220);
+  const RUNTIME_MIN = 90;
+  const RUNTIME_MAX = 220;
+  return getRandomInteger(RUNTIME_MIN, RUNTIME_MAX);
 };
 
 const generateFilmRating = () => {
@@ -46,17 +49,18 @@ const generateFilmRating = () => {
 };
 
 const generateFilmPoster = () => {
-  const idx = getRandomInteger(0, POSTERS.length - 1);
-  return POSTERS_DIR_PATH + POSTERS[idx];
+  const idx = getRandomInteger(0, MOCKSRC.POSTERS.length - 1);
+  return MOCKSRC.POSTERS_DIR_PATH + MOCKSRC.POSTERS[idx];
 };
 
 const generateFilmGenre = () => {
-  const count = getRandomInteger(1, 4);
-  const arr = GENRES;
+  const GENRECOUNT_MIN = 1;
+  const GENRECOUNT_MAX = 4;
+  const count = getRandomInteger(GENRECOUNT_MIN, GENRECOUNT_MAX);
   const list = new Set();
   do {
-    const idx = getRandomInteger(0, arr.length - 1);
-    list.add(arr[idx]);
+    const idx = getRandomInteger(0, MOCKSRC.GENRES.length - 1);
+    list.add(MOCKSRC.GENRES[idx]);
   }
   while(count > list.size);
   return Array.from(list);
@@ -78,16 +82,17 @@ const generateComment = (releaseDate) => {
   }
 
   const comment = {
-    emoji: EMOTIONS[getRandomInteger(0, EMOTIONS.length - 1)],
-    text: COMMENT_TEXTS[getRandomInteger(0, COMMENT_TEXTS.length - 1)],
-    author: COMMENT_AUTHOR[getRandomInteger(0, COMMENT_AUTHOR.length - 1)],
+    emoji: MOCKSRC.EMOTIONS[getRandomInteger(0, MOCKSRC.EMOTIONS.length - 1)],
+    text: MOCKSRC.COMMENT_TEXTS[getRandomInteger(0, MOCKSRC.COMMENT_TEXTS.length - 1)],
+    author: MOCKSRC.COMMENT_AUTHOR[getRandomInteger(0, MOCKSRC.COMMENT_AUTHOR.length - 1)],
     date,
   };
   return comment;
 };
 
 const generateFilmComments = (releaseDate) => {
-  const commentsCount = getRandomInteger(0, 5);
+  const MAX_COMMENT_COUNT = 5;
+  const commentsCount = getRandomInteger(0, MAX_COMMENT_COUNT);
   const comments = new Array();
   for(let i = 0; i < commentsCount; i++) {
     comments.push(generateComment(releaseDate));
@@ -112,16 +117,18 @@ const generateFilmReleaseDate = () => {
 };
 
 const generateFilmAgeRate = () => {
-  return AGE_RATES[getRandomInteger(0, AGE_RATES.length - 1)];
+  return MOCKSRC.AGE_RATES[getRandomInteger(0, MOCKSRC.AGE_RATES.length - 1)];
 };
 
 const generateFilmDiretor = () => {
-  return FILM_DIRECTORS[getRandomInteger(0, FILM_DIRECTORS.length - 1)];
+  return MOCKSRC.FILM_DIRECTORS[getRandomInteger(0, MOCKSRC.FILM_DIRECTORS.length - 1)];
 };
 
 const generateFilmWriters = () => {
-  const arr = WRITERS;
-  const count = getRandomInteger(1, 4);
+  const arr = MOCKSRC.WRITERS;
+  const WRITERS_COUNT_MIN = 1;
+  const WRITERS_COUNT_MAX = 4;
+  const count = getRandomInteger(WRITERS_COUNT_MIN, WRITERS_COUNT_MAX);
   const list = new Set();
   do {
     const idx = getRandomInteger(0, arr.length - 1);
@@ -135,8 +142,10 @@ const generateFilmWriters = () => {
 };
 
 const generateFilmActors = () => {
-  const arr = ACTORS;
-  const count = getRandomInteger(1, 6);
+  const arr = MOCKSRC.ACTORS;
+  const ACTORS_COUNT_MIN = 3;
+  const ACTORS_COUNT_MAX = 6;
+  const count = getRandomInteger(ACTORS_COUNT_MIN, ACTORS_COUNT_MAX);
   const list = new Set();
   do {
     const idx = getRandomInteger(0, arr.length - 1);
@@ -150,7 +159,7 @@ const generateFilmActors = () => {
 };
 
 const generateFilmCountry = () => {
-  return COUNTRIES[getRandomInteger(0, COUNTRIES.length - 1)];
+  return MOCKSRC.COUNTRIES[getRandomInteger(0, MOCKSRC.COUNTRIES.length - 1)];
 };
 
 export const generateFilm = () => {
@@ -168,7 +177,7 @@ export const generateFilm = () => {
     name,
     originName: getOriginName(name),
     poster: generateFilmPoster(),
-    description: generateFilmDescription(DESCRIPTION),
+    description: generateFilmDescription(MOCKSRC.DESCRIPTION),
     comments,
     rating: generateFilmRating(),
     releaseDate: releaseDate.format('D MMMM YYYY'),

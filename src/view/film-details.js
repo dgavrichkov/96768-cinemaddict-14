@@ -1,15 +1,14 @@
 import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils';
 
-const getGenreItem = (genre) => {
-  return `
-    <span class="film-details__genre">${genre}</span>
-  `;
+import {createElement} from '../utils.js';
+
+const createGenreItem = (genre) => {
+  return `<span class="film-details__genre">${genre}</span>`;
 };
-// TODO - format comment date to string like '2 days ago'
-const getCommentItem = (comment) => {
+
+const createCommentItem = (comment) => {
   const {emoji, text, author, date} = comment;
-  return `
-    <li class="film-details__comment">
+  return `<li class="film-details__comment">
       <span class="film-details__comment-emoji">
         <img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">
       </span>
@@ -25,19 +24,18 @@ const getCommentItem = (comment) => {
   `;
 };
 
-export const getFilmDetailsTemplate = (film) => {
+export const createFilmDetailsTemplate = (film) => {
   const {name, originName, poster, ageRating, description, rating, releaseDate, country, genres, director, writers, actors, runtime, userAction, comments} = film;
 
   const genreItemsList = genres.map((genre) => {
-    return getGenreItem(genre);
+    return createGenreItem(genre);
   }).join('');
 
   const commentsList = comments.map((comment) => {
-    return getCommentItem(comment);
+    return createCommentItem(comment);
   }).join('');
 
-  return `
-    <section class="film-details">
+  return `<section class="film-details">
       <form class="film-details__inner" action="" method="get">
         <div class="film-details__top-container">
           <div class="film-details__close">
@@ -155,3 +153,26 @@ export const getFilmDetailsTemplate = (film) => {
     </section>
   `;
 };
+
+export default class FilmDetails {
+  constructor(film) {
+    this._element = null;
+    this._film = film;
+  }
+
+  getTemplate() {
+    return createFilmDetailsTemplate(this._film);
+  }
+
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
