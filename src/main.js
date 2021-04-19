@@ -57,11 +57,11 @@ const renderFilm = (filmsListEl, film) => {
 
   const renderPopup = (film) => {
     const popupComponent = new FilmDetailsView(film);
-    const closeTrigger = popupComponent.getElement().querySelector();
+    const closeTrigger = popupComponent.getElement().querySelector('.film-details__close');
     const onPopupClose = () => {
+      closeTrigger.removeEventListener('click', onPopupClose);
       document.removeEventListener('click', onPopupClose);
       document.body.classList.remove('hide-overflow');
-      closeTrigger.removeEventListener('click', onPopupClose);
 
       popupComponent.closePopup();
     };
