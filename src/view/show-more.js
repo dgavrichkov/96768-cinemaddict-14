@@ -24,8 +24,4 @@ export default class ShowMoreView extends AbstractView {
     this.getElement().addEventListener('click', this._clickHandler);
   }
 
-  deleteButton() {
-    this.getElement().remove();
-    this.removeElement();
-  }
 }

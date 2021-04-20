@@ -11,7 +11,7 @@ import UserStatView from './view/user-statistics.js';
 import {generateFilm} from './mock/film.js';
 import {generateFilter} from './mock/filter.js';
 import {generateUserstat} from './mock/userStat.js';
-import {render, RenderPosition} from './utils/render.js';
+import {render, RenderPosition, remove} from './utils/render.js';
 import {userFilms, sortFilmsByComments, sortFilmsByRates} from './utils/film.js';
 
 const FILMS_COUNT = 22;
@@ -47,7 +47,7 @@ const renderFilm = (filmsListEl, film) => {
     const popupComponent = new FilmDetailsView(film);
 
     const onPopupClose = () => {
-      popupComponent.closePopup();
+      remove(popupComponent);
       document.removeEventListener('click', onPopupClose);
       document.body.classList.remove('hide-overflow');
     };
@@ -97,7 +97,7 @@ const renderRegular = (films) => {
       renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
       if(renderedFilmsCount >= films.length) {
-        showMore.deleteButton();
+        remove(showMore);
       }
     });
   }
