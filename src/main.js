@@ -11,7 +11,8 @@ import UserStatView from './view/user-statistics.js';
 import {generateFilm} from './mock/film.js';
 import {generateFilter} from './mock/filter.js';
 import {generateUserstat} from './mock/userStat.js';
-import {render, RenderPosition, userFilms, sortFilmsByComments, sortFilmsByRates} from './utils.js';
+import {render, RenderPosition} from './utils/render.js';
+import {userFilms, sortFilmsByComments, sortFilmsByRates} from './utils/film.js';
 
 const FILMS_COUNT = 22;
 const FILMS_COUNT_PER_STEP = 5;

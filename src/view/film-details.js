@@ -1,5 +1,5 @@
 import AbstractView from './abstract.js';
-import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils';
+import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils/film.js';
 
 const createGenreItem = (genre) => {
   return `<span class="film-details__genre">${genre}</span>`;

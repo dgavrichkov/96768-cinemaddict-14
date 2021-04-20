@@ -1,6 +1,6 @@
 import {nanoid} from 'nanoid';
 import dayjs from 'dayjs';
-import {getRandomInteger} from '../utils.js';
+import {getRandomInteger} from '../utils/common.js';
 import * as MOCKSRC from '../mock/mock-const.js';
 
 const filmNamesList = Array.from(MOCKSRC.FILM_NAMES.keys());

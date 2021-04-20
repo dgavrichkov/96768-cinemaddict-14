@@ -1,5 +1,5 @@
 import AbstractView from './abstract.js';
-import {trimDescription, defindRateColor, minutesToFormat} from '../utils';
+import {trimDescription, defindRateColor, minutesToFormat} from '../utils/film.js';
 
 const createFilmCardTemplate = (film) => {
   if(!film) {
