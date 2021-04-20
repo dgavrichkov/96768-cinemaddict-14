@@ -94,13 +94,10 @@ const renderRegular = (films) => {
 
   if(films.length > FILMS_COUNT_PER_STEP) {
     let renderedFilmsCount = FILMS_COUNT_PER_STEP;
+    const showMore = new ShowMoreView();
+    render(regularFilmsList.getElement(), showMore.getElement(), RenderPosition.BEFOREEND);
 
-    render(regularFilmsList.getElement(), new ShowMoreView().getElement(), RenderPosition.BEFOREEND);
-
-    const showMoreBtn = document.querySelector('.films-list__show-more');
-
-    showMoreBtn.addEventListener('click', (e) => {
-      e.preventDefault();
+    showMore.setClickHandler(() => {
       films
         .slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP)
         .forEach((film) => renderFilm(regularFilmsListContainer, film));
@@ -108,7 +105,7 @@ const renderRegular = (films) => {
       renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
       if(renderedFilmsCount >= films.length) {
-        showMoreBtn.remove();
+        showMore.deleteButton();
       }
     });
   }

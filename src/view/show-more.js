@@ -5,9 +5,27 @@ const createShowMoreTemplate = () => {
 };
 
 export default class ShowMoreView extends AbstractView {
+  constructor() {
+    super();
+    this._clickHandler = this._clickHandler.bind(this);
+  }
 
   getTemplate() {
     return createShowMoreTemplate();
   }
 
+  _clickHandler(e) {
+    e.preventDefault();
+    this._callback.click();
+  }
+
+  setClickHandler(callback) {
+    this._callback.click = callback;
+    this.getElement().addEventListener('click', this._clickHandler);
+  }
+
+  deleteButton() {
+    this.getElement().remove();
+    this.removeElement();
+  }
 }
