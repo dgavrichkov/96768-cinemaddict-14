@@ -1,4 +1,4 @@
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
 
 const createDurationTemplate = (minutes) => {
   return `${Math.floor(minutes/60)}<span class="statistic__item-description">h</span> ${minutes%60}<span class="statistic__item-description">m</span>
@@ -8,8 +8,7 @@ const createDurationTemplate = (minutes) => {
 const createUserStatTemplate = (userStat) => {
   const {historyCount, totalDuration, userRank, topGenre} = userStat;
 
-  return `
-    <section class="statistic">
+  return `<section class="statistic">
       <p class="statistic__rank">
         Your rank
         <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
@@ -57,25 +56,14 @@ const createUserStatTemplate = (userStat) => {
   `;
 };
 
-export default class UserStat {
+export default class UserStat extends AbstractView {
   constructor(statData) {
+    super();
     this._statData = statData;
-    this._element = null;
   }
 
   getTemplate() {
     return createUserStatTemplate(this._statData);
   }
 
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }
