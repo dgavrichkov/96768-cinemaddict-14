@@ -175,4 +175,9 @@ export default class FilmDetails {
   removeElement() {
     this._element = null;
   }
+
+  closePopup() {
+    this.getElement().remove();
+    this.removeElement();
+  }
 }
