@@ -38,43 +38,34 @@ render(siteMainEl, filmsContainer.getElement(), RenderPosition.BEFOREEND);
 const renderFilm = (filmsListEl, film) => {
   const filmComponent = new FilmCardView(film);
 
-  const openTriggers = [
-    filmComponent.getElement().querySelector('.film-card__poster'),
-    filmComponent.getElement().querySelector('.film-card__title'),
-    filmComponent.getElement().querySelector('.film-card__comments'),
-  ];
-
-  openTriggers.forEach((trg) => {
-    trg.addEventListener('click', (e) => {
-      if(document.querySelector('.film-details')) {
-        return;
-      }
-      e.stopPropagation();
-      e.preventDefault();
-      renderPopup(film);
-    });
+  filmComponent.setOpenDetailHandler(() => {
+    renderPopup(film);
   });
 
   const renderPopup = (film) => {
     const popupComponent = new FilmDetailsView(film);
-    const closeTrigger = popupComponent.getElement().querySelector('.film-details__close');
+
     const onPopupClose = () => {
-      closeTrigger.removeEventListener('click', onPopupClose);
+      popupComponent.closePopup();
       document.removeEventListener('click', onPopupClose);
       document.body.classList.remove('hide-overflow');
+    };
 
-      popupComponent.closePopup();
+    const clickOutPopup = (e) => {
+      if(!e.target.closest('.film-details')) {
+        onPopupClose();
+      }
+      document.removeEventListener('click', clickOutPopup);
     };
 
     document.body.classList.add('hide-overflow');
 
-    closeTrigger.addEventListener('click', onPopupClose);
-
-    document.addEventListener('click', (e) => {
-      if(!e.target.closest('.film-details')) {
-        onPopupClose();
-      }
+    popupComponent.setClickCloseHandler(() => {
+      onPopupClose();
     });
+
+    document.addEventListener('click', clickOutPopup);
+
 
     render(siteFooterEl, popupComponent.getElement(), RenderPosition.AFTEREND);
   };
