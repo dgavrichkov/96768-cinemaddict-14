@@ -24,6 +24,10 @@ export default class Filmboard {
     this._showMoreComp = new ShowMoreView();
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
     this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
+    this._handleFavoriteClickClick = this._handleFavoriteClick.bind(this);
+    this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
+    this._handleWatchedClick = this._handleWatchedClick.bind(this);
+
   }
 
   init(films) {
@@ -43,7 +47,9 @@ export default class Filmboard {
 
   _renderFilm(filmsListEl, film) {
     const filmComponent = new FilmCardView(film);
-
+    filmComponent.setClickFavoriteHandler(this._handleFavoriteClick);
+    filmComponent.setClickWatchlistHandler(this._handleWatchlistClick);
+    filmComponent.setClickWatchedHandler(this._handleWatchedClick);
     filmComponent.setOpenDetailHandler(() => {
       this._renderPopup(film);
     });
@@ -149,5 +155,7 @@ export default class Filmboard {
       remove(this._showMoreComp);
     }
   }
-
+  _handleFavoriteClick() {}
+  _handleWatchedClick() {}
+  _handleWatchlistClick() {}
 }
