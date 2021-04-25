@@ -1,14 +1,14 @@
 
 const watchlistCount = (films) => {
-  return films.filter((film) => film.userAction.watchlist).length;
+  return films.filter((film) => film.watchlist).length;
 };
 
 const favoriteCount = (films) => {
-  return films.filter((film) => film.userAction.favorite).length;
+  return films.filter((film) => film.favorite).length;
 };
 
 const historyCount = (films) => {
-  return films.filter((film) => film.userAction.alreadyWatched).length;
+  return films.filter((film) => film.alreadyWatched).length;
 };
 
 export const generateFilter = (films) => {

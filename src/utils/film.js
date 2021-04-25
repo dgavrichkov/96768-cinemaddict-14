@@ -45,7 +45,7 @@ export const defindGenreSign = (list) => {
 };
 
 export const userFilms = (films) => {
-  return films.filter((film) => film.userAction.alreadyWatched === true);
+  return films.filter((film) => film.alreadyWatched === true);
 };
 
 export const minutesToFormat = (minutes) => {
