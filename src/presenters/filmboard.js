@@ -12,7 +12,6 @@ import {
   remove
 } from '../utils/render.js';
 
-
 const FILMS_COUNT_PER_STEP = 5;
 
 export default class Filmboard {
@@ -20,6 +19,11 @@ export default class Filmboard {
     this._mainEl = container;
     this._filmsComp = new FilmsView();
     this._sortComp = new SortView();
+    this._regularFilmsList = new FilmsListView(false, 'list');
+    this._regularFilmsListContainer = this._regularFilmsList.getElement().querySelector('.films-list__container');
+    this._showMoreComp = new ShowMoreView();
+    this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
+    this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
   }
 
   init(films) {
@@ -57,7 +61,6 @@ export default class Filmboard {
       }
     };
 
-
     popupComponent.setClickCloseHandler(() => {
       this._popupOnClose(popupComponent);
     });
@@ -83,32 +86,14 @@ export default class Filmboard {
   }
 
   _renderRegular(films) {
-    const regularFilmsList = new FilmsListView(false, 'list');
+    render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
 
-    render(this._filmsComp, regularFilmsList, RenderPosition.BEFOREEND);
-
-    const regularFilmsListContainer = regularFilmsList.getElement().querySelector('.films-list__container');
-
-    for(let i = 0; i < Math.min(films.length, FILMS_COUNT_PER_STEP); i++) {
-      this._renderFilm(regularFilmsListContainer, films[i]);
+    for(let i = 0; i < Math.min(films.length, this._renderedFilmsCount); i++) {
+      this._renderFilm(this._regularFilmsListContainer, films[i]);
     }
 
     if(films.length > FILMS_COUNT_PER_STEP) {
-      let renderedFilmsCount = FILMS_COUNT_PER_STEP;
-      const showMore = new ShowMoreView();
-      render(regularFilmsList, showMore, RenderPosition.BEFOREEND);
-
-      showMore.setClickHandler(() => {
-        films
-          .slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP)
-          .forEach((film) => this._renderFilm(regularFilmsListContainer, film));
-
-        renderedFilmsCount += FILMS_COUNT_PER_STEP;
-
-        if(renderedFilmsCount >= films.length) {
-          remove(showMore);
-        }
-      });
+      this._renderShowMoreButton();
     }
   }
 
@@ -144,4 +129,25 @@ export default class Filmboard {
     this._renderTopRated(this._sortFilmsByRates(this._films));
     this._renderMostComment(this._sortFilmsByComments(this._films));
   }
+
+  _renderFilmsSlice(from, to) {
+    this._films
+      .slice(from, to)
+      .forEach((film) => this._renderFilm(this._regularFilmsListContainer, film));
+  }
+
+  _renderShowMoreButton() {
+    render(this._regularFilmsList, this._showMoreComp, RenderPosition.BEFOREEND);
+    this._showMoreComp.setClickHandler(this._handleShowMoreButtonClick);
+  }
+
+  _handleShowMoreButtonClick() {
+    this._renderFilmsSlice(this._renderedFilmsCount, this._renderedFilmsCount + FILMS_COUNT_PER_STEP);
+    this._renderedFilmsCount += FILMS_COUNT_PER_STEP;
+
+    if(this._renderedFilmsCount >= this._films.length) {
+      remove(this._showMoreComp);
+    }
+  }
+
 }
