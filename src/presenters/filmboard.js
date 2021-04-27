@@ -10,7 +10,8 @@ import {updateItem} from '../utils/common.js';
 import {
   render,
   RenderPosition,
-  remove
+  remove,
+  replace
 } from '../utils/render.js';
 
 const FILMS_COUNT_PER_STEP = 5;
@@ -26,6 +27,8 @@ export default class Filmboard {
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
     this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
     this._handleFilmChange = this._handleFilmChange.bind(this);
+    // в моем случае - это экземляры карточек. Это нужно, поскольку один объект фильма может иметь несколько экземпляров, и обновлять нужно их все.
+    this._prevFilmCards = [];
   }
 
   init(films) {
@@ -43,9 +46,18 @@ export default class Filmboard {
     render(this._mainEl, this._filmsComp, RenderPosition.BEFOREEND);
   }
 
-  _renderFilm(filmsListEl, film) {
+  _renderFilm(filmsList, film, prevFilm = null) {
+
+    if(prevFilm === null) {
+      console.log('нету предыдущих, карточка ренедерится впервые');
+    } else {
+      console.log(prevFilm);
+    }
+
+    const container = filmsList.getElement().querySelector('.films-list__container');
     const filmComponent = new FilmCardView(film);
-    console.log(film);
+
+
     filmComponent.setClickFavoriteHandler(() => {
       this._handleFilmChange(
         Object.assign(
@@ -57,14 +69,39 @@ export default class Filmboard {
         ),
       );
     });
-    filmComponent.setClickWatchlistHandler();
-    filmComponent.setClickWatchedHandler();
+    filmComponent.setClickWatchlistHandler(() => {
+      this._handleFilmChange(
+        Object.assign(
+          {},
+          film,
+          {
+            watchlist: !film.watchlist,
+          },
+        ),
+      );
+    });
+    filmComponent.setClickWatchedHandler(() => {
+      this._handleFilmChange(
+        Object.assign(
+          {},
+          film,
+          {
+            alreadyWatched: !film.alreadyWatched,
+          },
+        ),
+      );
+    },
+    );
 
     filmComponent.setOpenDetailHandler(() => {
       this._renderPopup(film);
     });
 
-    render(filmsListEl, filmComponent, RenderPosition.BEFOREEND);
+    const prevMap = new Map();
+    prevMap.set(filmsList, filmComponent);
+    this._prevFilmCards.push(prevMap);
+
+    render(container, filmComponent, RenderPosition.BEFOREEND);
   }
 
   _renderPopup(film) {
@@ -105,7 +142,7 @@ export default class Filmboard {
     render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
 
     for(let i = 0; i < Math.min(films.length, this._renderedFilmsCount); i++) {
-      this._renderFilm(this._regularFilmsListContainer, films[i]);
+      this._renderFilm(this._regularFilmsList, films[i]);
     }
 
     if(films.length > FILMS_COUNT_PER_STEP) {
@@ -119,10 +156,8 @@ export default class Filmboard {
 
     render(this._filmsComp, topRatedFilmsList, RenderPosition.BEFOREEND);
 
-    const topRatedFilmsListContainer = topRatedFilmsList.getElement().querySelector('.films-list__container');
-
     for(let i = 0; i < Math.min(films.length, EXTRA_LIST_COUNT); i++) {
-      this._renderFilm(topRatedFilmsListContainer, films[i]);
+      this._renderFilm(topRatedFilmsList, films[i]);
     }
   }
 
@@ -132,10 +167,8 @@ export default class Filmboard {
 
     render(this._filmsComp, mostCommentFilmsList, RenderPosition.BEFOREEND);
 
-    const mostCommentFilmsListContainer = mostCommentFilmsList.getElement().querySelector('.films-list__container');
-
     for(let i = 0; i <  Math.min(films.length, EXTRA_LIST_COUNT); i++) {
-      this._renderFilm(mostCommentFilmsListContainer, films[i]);
+      this._renderFilm(mostCommentFilmsList, films[i]);
     }
   }
 
@@ -168,6 +201,25 @@ export default class Filmboard {
 
   _handleFilmChange(updatedFilm) {
     this._films = updateItem(this._films, updatedFilm);
-    console.log(updatedFilm);
+
+    this._prevFilmCards.forEach((prevFilm) => {
+      let prevCard = null;
+      let prevCardContainer = null;
+      for(const val of prevFilm.entries()) {
+        if(val[1].getFilmId() === updatedFilm.id) {
+          prevCard = val[1];
+          prevCardContainer = val[0];
+        }
+      }
+      if(prevCard) {
+        const newFilmComp = new FilmCardView(updatedFilm);
+        this._renderFilm(prevCardContainer, newFilmComp, prevCard);
+      }
+      return false;
+    });
+    // cardsToUpdate.forEach((card) => {
+    //   const newFilmComp = new FilmCardView(updatedFilm);
+    //   replace(newFilmComp, card);
+    // });
   }
 }

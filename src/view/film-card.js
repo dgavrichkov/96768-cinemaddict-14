@@ -113,4 +113,8 @@ export default class FilmCard extends AbstractView {
     const watchedTrg = this.getElement().querySelector('.js-watched');
     watchedTrg.addEventListener('click', this._clickWatchedHandler);
   }
+
+  getFilmId() {
+    return this._film.id;
+  }
 }
