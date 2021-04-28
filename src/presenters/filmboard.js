@@ -13,6 +13,7 @@ import {
   remove,
   replace
 } from '../utils/render.js';
+import { nanoid } from 'nanoid';
 
 const FILMS_COUNT_PER_STEP = 5;
 
@@ -29,6 +30,7 @@ export default class Filmboard {
     this._handleFilmChange = this._handleFilmChange.bind(this);
     // в моем случае - это экземляры карточек. Это нужно, поскольку один объект фильма может иметь несколько экземпляров, и обновлять нужно их все.
     this._prevFilmCards = [];
+
   }
 
   init(films) {
@@ -48,15 +50,9 @@ export default class Filmboard {
 
   _renderFilm(filmsList, film, prevFilm = null) {
 
-    if(prevFilm === null) {
-      console.log('нету предыдущих, карточка ренедерится впервые');
-    } else {
-      console.log(prevFilm);
-    }
-
-    const container = filmsList.getElement().querySelector('.films-list__container');
+    const container = filmsList;
     const filmComponent = new FilmCardView(film);
-
+    filmComponent.prevId = nanoid();
 
     filmComponent.setClickFavoriteHandler(() => {
       this._handleFilmChange(
@@ -90,18 +86,23 @@ export default class Filmboard {
           },
         ),
       );
-    },
-    );
-
+    });
     filmComponent.setOpenDetailHandler(() => {
       this._renderPopup(film);
     });
 
-    const prevMap = new Map();
-    prevMap.set(filmsList, filmComponent);
-    this._prevFilmCards.push(prevMap);
+    if(prevFilm === null) {
+      render(container, filmComponent, RenderPosition.BEFOREEND);
 
-    render(container, filmComponent, RenderPosition.BEFOREEND);
+      this._prevFilmCards.push(filmComponent);
+      return;
+
+    } else {
+      const newPrevFilmIdx = this._prevFilmCards.findIndex((item) => item.prevId === prevFilm.prevId);
+      this._prevFilmCards[newPrevFilmIdx] = filmComponent;
+      replace(filmComponent, prevFilm);
+
+    }
   }
 
   _renderPopup(film) {
@@ -142,7 +143,7 @@ export default class Filmboard {
     render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
 
     for(let i = 0; i < Math.min(films.length, this._renderedFilmsCount); i++) {
-      this._renderFilm(this._regularFilmsList, films[i]);
+      this._renderFilm(this._regularFilmsListContainer, films[i]);
     }
 
     if(films.length > FILMS_COUNT_PER_STEP) {
@@ -153,22 +154,23 @@ export default class Filmboard {
   _renderTopRated(films) {
     const EXTRA_LIST_COUNT = 2;
     const topRatedFilmsList = new FilmsListView(true, 'top-rated');
+    const topRatedFilmsListContainer = topRatedFilmsList.getElement().querySelector('.films-list__container');
 
     render(this._filmsComp, topRatedFilmsList, RenderPosition.BEFOREEND);
 
     for(let i = 0; i < Math.min(films.length, EXTRA_LIST_COUNT); i++) {
-      this._renderFilm(topRatedFilmsList, films[i]);
+      this._renderFilm(topRatedFilmsListContainer, films[i]);
     }
   }
 
   _renderMostComment(films) {
     const EXTRA_LIST_COUNT = 2;
     const mostCommentFilmsList = new FilmsListView(true, 'most-commented');
-
+    const mostCommentFilmsListContainer = mostCommentFilmsList.getElement().querySelector('.films-list__container');
     render(this._filmsComp, mostCommentFilmsList, RenderPosition.BEFOREEND);
 
     for(let i = 0; i <  Math.min(films.length, EXTRA_LIST_COUNT); i++) {
-      this._renderFilm(mostCommentFilmsList, films[i]);
+      this._renderFilm(mostCommentFilmsListContainer, films[i]);
     }
   }
 
@@ -202,24 +204,11 @@ export default class Filmboard {
   _handleFilmChange(updatedFilm) {
     this._films = updateItem(this._films, updatedFilm);
 
-    this._prevFilmCards.forEach((prevFilm) => {
-      let prevCard = null;
-      let prevCardContainer = null;
-      for(const val of prevFilm.entries()) {
-        if(val[1].getFilmId() === updatedFilm.id) {
-          prevCard = val[1];
-          prevCardContainer = val[0];
-        }
-      }
-      if(prevCard) {
-        const newFilmComp = new FilmCardView(updatedFilm);
-        this._renderFilm(prevCardContainer, newFilmComp, prevCard);
-      }
-      return false;
+    const filmsToUpdate = this._prevFilmCards.filter((prev) => prev.getFilmId() === updatedFilm.id);
+
+    filmsToUpdate.forEach((upd) => {
+      const updParent = upd.getElement().parentElement;
+      this._renderFilm(updParent, updatedFilm, upd);
     });
-    // cardsToUpdate.forEach((card) => {
-    //   const newFilmComp = new FilmCardView(updatedFilm);
-    //   replace(newFilmComp, card);
-    // });
   }
 }
