@@ -189,11 +189,9 @@ export const generateFilm = () => {
     country: generateFilmCountry(),
     writers: generateFilmWriters(),
     actors: generateFilmActors(),
-    userAction: {
-      watchlist: Boolean(getRandomInteger(0, 1)),
-      alreadyWatched,
-      watchingDate,
-      favorite: Boolean(getRandomInteger(0, 1)),
-    },
+    watchlist: Boolean(getRandomInteger(0, 1)),
+    alreadyWatched,
+    watchingDate,
+    favorite: Boolean(getRandomInteger(0, 1)),
   };
 };
