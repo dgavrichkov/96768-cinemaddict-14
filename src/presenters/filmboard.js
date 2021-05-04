@@ -8,6 +8,7 @@ import SortView from '../view/sort.js';
 import {
   sortFilmsByComments,
   sortFilmsByRates,
+  sortFilmsByDate,
   getFilmContainer,
   isPopupExist
 } from '../utils/film.js';
@@ -19,6 +20,7 @@ import {
   replace
 } from '../utils/render.js';
 import { nanoid } from 'nanoid';
+import {SortType} from '../const.js';
 
 const FILMS_COUNT_PER_STEP = 5;
 const EXTRA_LIST_COUNT = 2;
@@ -34,19 +36,23 @@ export default class Filmboard {
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
     this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
     this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._prevFilmCards = [];
     this._openedPopup = null;
+    this._currentSortType = SortType.DEFAULT;
   }
 
   init(films) {
     this._films = films.slice();
-
+    this._defaultFilms = films.slice();
     this._renderSort();
     this._renderFilmBoard();
   }
 
   _renderSort() {
     render(this._mainEl, this._sortComp, RenderPosition.BEFOREEND);
+
+    this._sortComp.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderFilmsContainer() {
@@ -180,12 +186,14 @@ export default class Filmboard {
     this._openedPopup = null;
   }
   // рендер главного списка фильмов
-  _renderRegular(films) {
+  _renderRegular() {
     render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
+  }
 
-    this._renderFilmsSlice(films, this._regularFilmsListContainer, 0, Math.min(films.length, this._renderedFilmsCount));
+  _renderRegularCards() {
+    this._renderFilmsSlice(this._films, this._regularFilmsListContainer, 0, Math.min(this._films.length, this._renderedFilmsCount));
 
-    if(films.length > FILMS_COUNT_PER_STEP) {
+    if(this._films.length > FILMS_COUNT_PER_STEP) {
       this._renderShowMoreButton();
     }
   }
@@ -209,9 +217,10 @@ export default class Filmboard {
   // рендерит основной контейнер и списки фильмов
   _renderFilmBoard() {
     this._renderFilmsContainer();
-    this._renderRegular(this._films);
-    this._renderTopRated(sortFilmsByRates(this._films));
-    this._renderMostComment(sortFilmsByComments(this._films));
+    this._renderRegular();
+    this._renderRegularCards();
+    this._renderTopRated(this._films.sort(sortFilmsByRates));
+    this._renderMostComment(this._films.sort(sortFilmsByComments));
   }
   // универсальный метод рендеринга пачки фильмов
   _renderFilmsSlice(list, container, from, to) {
@@ -237,6 +246,7 @@ export default class Filmboard {
   _handleFilmChange(updatedFilm) {
 
     this._films = updateItem(this._films, updatedFilm);
+    this._defaultFilms = updateItem(this._defaultFilms, updatedFilm);
 
     const filmsToUpdate = this._prevFilmCards.filter((prev) => prev.getFilmId() === updatedFilm.id);
 
@@ -248,5 +258,47 @@ export default class Filmboard {
     if(isPopupExist()) {
       this._renderPopup(updatedFilm);
     }
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+    // - Сортируем задачи
+    this._sortRegularList(sortType);
+    // - Очищаем список
+    this._clearRegularList();
+    // - Рендерим список заново
+    this._renderRegularCards();
+  }
+
+  _sortRegularList(sortType) {
+    switch (sortType) {
+      case SortType.RATE:
+        this._films.sort(sortFilmsByRates);
+        break;
+      case SortType.DATE:
+        this._films.sort(sortFilmsByDate);
+        break;
+      case SortType.COMMENTS:
+        this._films.sort(sortFilmsByComments);
+        break;
+      default:
+        this._films = this._defaultFilms.slice();
+    }
+
+    this._currentSortType = sortType;
+  }
+
+  _clearRegularList() {
+    const regularListCards = this._prevFilmCards.filter((card) => {
+      return card.getElement().closest('[data-list-id]').dataset.listId === 'list';
+    });
+    regularListCards.forEach((card) => {
+      remove(card);
+      const prevIdx = this._prevFilmCards.indexOf(card);
+      this._prevFilmCards.splice(prevIdx, 1);
+    });
+    remove(this._showMoreComp);
   }
 }
