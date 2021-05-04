@@ -67,3 +67,12 @@ export const sortFilmsByComments = (films) => {
   });
   return sortFilms;
 };
+
+export const getFilmContainer = (component) => {
+  return component.getElement().querySelector('.films-list__container');
+};
+
+export const isPopupExist = () => {
+  const popup = document.querySelector('.film-details');
+  return popup !== null;
+};
