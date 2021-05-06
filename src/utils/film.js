@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(duration);
+dayjs.extend(relativeTime);
 
 export const trimDescription = (description) => {
   if(description.length <= 140) {
@@ -24,22 +26,7 @@ export const defindRateColor = (rate) => {
 };
 
 export const formatCommentDate = (date) => {
-  const currDay = dayjs().date();
-  const commentDay = dayjs(date).date();
-  const dayDiff = currDay - commentDay;
-  let commentDate = '';
-  if(dayDiff === 0) {
-    return commentDate = 'Today';
-  }
-  if(dayDiff <= 2 && dayDiff > 0) {
-    let val = 'days';
-    if(dayDiff === 1) {
-      val = 'day';
-    }
-    return commentDate = `${dayDiff} ${val} ago`;
-  }
-  commentDate = dayjs(date).format('YYYY/MM/DD hh:mm');
-  return commentDate;
+  return dayjs().from(date, true) + ' ago';
 };
 
 export const defindGenreSign = (list) => {
