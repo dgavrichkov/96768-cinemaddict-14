@@ -17,7 +17,7 @@ const createFilmsListTemplate = (isExtra, dataId) => {
   }
   return `<section
       class="films-list ${isExtra ? 'films-list--extra' : ''}"
-      data-id='${dataId}'
+      data-list-id='${dataId}'
     >
       ${title}
       ${dataId === 'empty' ? '' : '<div class="films-list__container"></div>'}
