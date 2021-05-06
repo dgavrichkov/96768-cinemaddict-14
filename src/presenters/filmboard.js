@@ -127,13 +127,10 @@ export default class Filmboard {
     };
 
     const handleEscKeyDown = (e) => {
-      if(this._openedPopup === null) {
-        return;
-      }
       if (e.key === 'Escape' || e.key === 'Esc') {
         e.preventDefault();
-        this._popupOnClose(popupComponent);
         document.removeEventListener('keydown', handleEscKeyDown);
+        this._popupOnClose(popupComponent);
       }
     };
 
@@ -189,10 +186,9 @@ export default class Filmboard {
       this._openedPopup = popupComponent;
     } else {
       replace(popupComponent, this._openedPopup);
-      popupComponent.setScrollPos();
       this._openedPopup = popupComponent;
+      popupComponent.setScrollPos();
     }
-
   }
 
   _popupOnClose(popup) {
