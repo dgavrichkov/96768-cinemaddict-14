@@ -45,7 +45,7 @@ export const defindGenreSign = (list) => {
 };
 
 export const userFilms = (films) => {
-  return films.filter((film) => film.userAction.alreadyWatched === true);
+  return films.filter((film) => film.alreadyWatched === true);
 };
 
 export const minutesToFormat = (minutes) => {
@@ -66,4 +66,13 @@ export const sortFilmsByComments = (films) => {
     return Math.floor(b.comments.length - a.comments.length);
   });
   return sortFilms;
+};
+
+export const getFilmContainer = (component) => {
+  return component.getElement().querySelector('.films-list__container');
+};
+
+export const isPopupExist = () => {
+  const popup = document.querySelector('.film-details');
+  return popup !== null;
 };

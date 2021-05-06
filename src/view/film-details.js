@@ -38,8 +38,10 @@ export const createFilmDetailsTemplate = (film) => {
     writers,
     actors,
     runtime,
-    userAction,
     comments,
+    watchlist,
+    alreadyWatched,
+    favorite,
   } = film;
 
   const genreItemsList = genres.map((genre) => {
@@ -114,14 +116,14 @@ export const createFilmDetailsTemplate = (film) => {
           </div>
 
           <section class="film-details__controls">
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${userAction.watchlist ? 'checked' : ''}>
-            <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${watchlist ? 'checked' : ''}>
+            <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist js-watchlist">Add to watchlist</label>
 
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${userAction.alreadyWatched ? 'checked' : ''}>
-            <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${alreadyWatched ? 'checked' : ''}>
+            <label for="watched" class="film-details__control-label film-details__control-label--watched js-watched">Already watched</label>
 
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${userAction.favorite ? 'checked' : ''}>
-            <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${favorite ? 'checked' : ''}>
+            <label for="favorite" class="film-details__control-label film-details__control-label--favorite js-favorite">Add to favorites</label>
           </section>
         </div>
 
@@ -174,6 +176,9 @@ export default class FilmDetails extends AbstractView {
     super();
     this._film = film;
     this._clickCloseHandler = this._clickCloseHandler.bind(this);
+    this._clickFavoriteHandler = this._clickFavoriteHandler.bind(this);
+    this._clickWatchlistHandler = this._clickWatchlistHandler.bind(this);
+    this._clickWatchedHandler = this._clickWatchedHandler.bind(this);
   }
 
   getTemplate() {
@@ -186,9 +191,38 @@ export default class FilmDetails extends AbstractView {
     this.getElement().querySelector('.film-details__close').removeEventListener('click', this._clickCloseHandler);
   }
 
+  _clickFavoriteHandler() {
+    this._callback.favoriteClick();
+  }
+
+  _clickWatchlistHandler() {
+    this._callback.watchlistClick();
+  }
+
+  _clickWatchedHandler() {
+    this._callback.watchedClick();
+  }
+
   setClickCloseHandler(callback) {
     this._callback.click = callback;
     this.getElement().querySelector('.film-details__close').addEventListener('click', this._clickCloseHandler);
   }
 
+  setClickFavoriteHandler(callback) {
+    this._callback.favoriteClick = callback;
+    const favTrg = this.getElement().querySelector('.js-favorite');
+    favTrg.addEventListener('click', this._clickFavoriteHandler);
+  }
+
+  setClickWatchlistHandler(callback) {
+    this._callback.watchlistClick = callback;
+    const watchlistTrg = this.getElement().querySelector('.js-watchlist');
+    watchlistTrg.addEventListener('click', this._clickWatchlistHandler);
+  }
+
+  setClickWatchedHandler(callback) {
+    this._callback.watchedClick = callback;
+    const watchedTrg = this.getElement().querySelector('.js-watched');
+    watchedTrg.addEventListener('click', this._clickWatchedHandler);
+  }
 }
