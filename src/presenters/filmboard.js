@@ -137,6 +137,7 @@ export default class Filmboard {
           film,
           {
             favorite: !film.favorite,
+            scrollPos: popupComponent.getElement().scrollTop,
           },
         ),
       );
@@ -149,6 +150,7 @@ export default class Filmboard {
           film,
           {
             watchlist: !film.watchlist,
+            scrollPos: popupComponent.getElement().scrollTop,
           },
         ),
       );
@@ -161,6 +163,7 @@ export default class Filmboard {
           film,
           {
             alreadyWatched: !film.alreadyWatched,
+            scrollPos: popupComponent.getElement().scrollTop,
           },
         ),
       );
@@ -174,6 +177,7 @@ export default class Filmboard {
       this._openedPopup = popupComponent;
     } else {
       replace(popupComponent, this._openedPopup);
+      popupComponent.setScrollPos();
       this._openedPopup = popupComponent;
     }
 

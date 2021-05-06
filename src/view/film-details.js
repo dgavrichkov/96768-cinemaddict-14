@@ -198,7 +198,7 @@ export default class FilmDetails extends SmartView {
 
   _clickCloseHandler(e) {
     e.preventDefault();
-    this._callback.click();
+    this._callback.closeClick();
     this.getElement().querySelector('.film-details__close').removeEventListener('click', this._clickCloseHandler);
   }
 
@@ -256,13 +256,19 @@ export default class FilmDetails extends SmartView {
     watchedTrg.addEventListener('click', this._clickWatchedHandler);
   }
 
+  setScrollPos() {
+    if(this._state.scrollPos !== 0) {
+      this.getElement().scrollTop = this._state.scrollPos;
+    }
+  }
+
   restoreElement() {
     this._setInnerHandlers();
     this.setClickCloseHandler(this._callback.closeClick);
     this.setClickWatchedHandler(this._callback.watchedClick);
     this.setClickFavoriteHandler(this._callback.favoriteClick);
     this.setClickWatchlistHandler(this._callback.watchlistClick);
-    this.getElement().scrollTop = this._state.scrollPos;
+    this.setScrollPos();
   }
 
   static parseDataToState(film) {
