@@ -189,7 +189,6 @@ export default class FilmDetails extends SmartView {
     this._clickWatchlistHandler = this._clickWatchlistHandler.bind(this);
     this._clickWatchedHandler = this._clickWatchedHandler.bind(this);
     this._pickEmoji = this._pickEmoji.bind(this);
-    this._commentEmojiContainer = this.getElement().querySelector('.film-details__add-emoji-label');
     this._setInnerHandlers();
   }
 
@@ -219,6 +218,7 @@ export default class FilmDetails extends SmartView {
     e.preventDefault();
     this.updateData({
       pickedEmoji: e.target.value,
+      scrollPos: this.getElement().scrollTop,
     });
   }
 
@@ -256,12 +256,13 @@ export default class FilmDetails extends SmartView {
     watchedTrg.addEventListener('click', this._clickWatchedHandler);
   }
 
-  restoreHandlers() {
+  restoreElement() {
     this._setInnerHandlers();
     this.setClickCloseHandler(this._callback.closeClick);
     this.setClickWatchedHandler(this._callback.watchedClick);
     this.setClickFavoriteHandler(this._callback.favoriteClick);
     this.setClickWatchlistHandler(this._callback.watchlistClick);
+    this.getElement().scrollTop = this._state.scrollPos;
   }
 
   static parseDataToState(film) {
