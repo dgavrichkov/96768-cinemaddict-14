@@ -1,5 +1,5 @@
 import AbstractView from './abstract.js';
-import {trimDescription, defindRateColor, minutesToFormat} from '../utils/film.js';
+import {trimDescription, defindRateColor, minutesToFormat, formatDateToYear} from '../utils/film.js';
 
 const createFilmCardTemplate = (film) => {
   if(!film) {
@@ -12,7 +12,7 @@ const createFilmCardTemplate = (film) => {
     description,
     comments,
     rating,
-    releaseYear,
+    releaseDate,
     runtime,
     genres,
     isWatchlist,
@@ -32,7 +32,7 @@ const createFilmCardTemplate = (film) => {
       <h3 class="film-card__title js-popup-trigger">${name}</h3>
       <p class="film-card__rating film-card__rating--${defindRateColor(rating)}">${rating}</p>
       <p class="film-card__info">
-        <span class="film-card__year">${releaseYear}</span>
+        <span class="film-card__year">${formatDateToYear(releaseDate)}</span>
         <span class="film-card__duration">${minutesToFormat(runtime)}</span>
         <span class="film-card__genre">${genres[0]}</span>
       </p>

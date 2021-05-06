@@ -34,6 +34,6 @@
   },
   "homepage": "https://github.com/dgavrichkov/96768-cinemaddict-14#readme",
   "dependencies": {
-    "dayjs": "1.9.5"
+    "dayjs": "1.9.7"
   }
 }

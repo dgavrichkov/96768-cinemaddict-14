@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 
+dayjs.extend(duration);
 
 export const trimDescription = (description) => {
   if(description.length <= 140) {
@@ -48,8 +50,12 @@ export const userFilms = (films) => {
   return films.filter((film) => film.alreadyWatched === true);
 };
 
-export const minutesToFormat = (minutes) => {
-  return `${Math.floor(minutes/60)}h ${minutes%60}m`;
+export const minutesToFormat = (min) => {
+  return dayjs.duration(min, 'minutes').format('H[h] m[m]');
+};
+
+export const formatDateToYear = (date) => {
+  return dayjs(date).year();
 };
 
 export const sortFilmsByRates = (filmA, filmB) => {
