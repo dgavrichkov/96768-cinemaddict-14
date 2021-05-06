@@ -1,4 +1,4 @@
-import AbstractView from './abstract.js';
+import SmartView from './smart.js';
 import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils/film.js';
 
 const createGenreItem = (genre) => {
@@ -23,6 +23,10 @@ const createCommentItem = (comment) => {
   `;
 };
 
+const createNewCommentEmojiImg = (emoji) => {
+  return `<img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">`;
+};
+
 export const createFilmDetailsTemplate = (film) => {
   const {
     name,
@@ -42,6 +46,7 @@ export const createFilmDetailsTemplate = (film) => {
     isWatchlist,
     isWatched,
     isFavorite,
+    pickedEmoji,
   } = film;
 
   const genreItemsList = genres.map((genre) => {
@@ -51,6 +56,8 @@ export const createFilmDetailsTemplate = (film) => {
   const commentsList = comments.map((comment) => {
     return createCommentItem(comment);
   }).join('');
+
+  const newCommentImg = createNewCommentEmojiImg(pickedEmoji);
 
   return `<section class="film-details">
       <form class="film-details__inner" action="" method="get">
@@ -136,7 +143,9 @@ export const createFilmDetailsTemplate = (film) => {
             </ul>
 
             <div class="film-details__new-comment">
-              <div class="film-details__add-emoji-label"></div>
+              <div class="film-details__add-emoji-label">
+                ${pickedEmoji ? newCommentImg : ''}
+              </div>
 
               <label class="film-details__comment-label">
                 <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
@@ -171,7 +180,7 @@ export const createFilmDetailsTemplate = (film) => {
   `;
 };
 
-export default class FilmDetails extends AbstractView {
+export default class FilmDetails extends SmartView {
   constructor(film) {
     super();
     this._state = FilmDetails.parseDataToState(film);
@@ -179,6 +188,9 @@ export default class FilmDetails extends AbstractView {
     this._clickFavoriteHandler = this._clickFavoriteHandler.bind(this);
     this._clickWatchlistHandler = this._clickWatchlistHandler.bind(this);
     this._clickWatchedHandler = this._clickWatchedHandler.bind(this);
+    this._pickEmoji = this._pickEmoji.bind(this);
+    this._commentEmojiContainer = this.getElement().querySelector('.film-details__add-emoji-label');
+    this._setInnerHandlers();
   }
 
   getTemplate() {
@@ -203,8 +215,26 @@ export default class FilmDetails extends AbstractView {
     this._callback.watchedClick();
   }
 
+  _pickEmoji(e) {
+    e.preventDefault();
+    this.updateData({
+      pickedEmoji: e.target.value,
+    });
+  }
+
+  _setEmojiHandlers() {
+    const emojies = this.getElement().querySelectorAll('.film-details__emoji-item');
+    emojies.forEach((emoji) => {
+      emoji.addEventListener('click', this._pickEmoji);
+    });
+  }
+
+  _setInnerHandlers() {
+    this._setEmojiHandlers();
+  }
+
   setClickCloseHandler(callback) {
-    this._callback.click = callback;
+    this._callback.closeClick = callback;
     this.getElement().querySelector('.film-details__close').addEventListener('click', this._clickCloseHandler);
   }
 
@@ -224,6 +254,14 @@ export default class FilmDetails extends AbstractView {
     this._callback.watchedClick = callback;
     const watchedTrg = this.getElement().querySelector('.js-watched');
     watchedTrg.addEventListener('click', this._clickWatchedHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setClickCloseHandler(this._callback.closeClick);
+    this.setClickWatchedHandler(this._callback.watchedClick);
+    this.setClickFavoriteHandler(this._callback.favoriteClick);
+    this.setClickWatchlistHandler(this._callback.watchlistClick);
   }
 
   static parseDataToState(film) {
