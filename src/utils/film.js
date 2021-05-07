@@ -52,20 +52,16 @@ export const minutesToFormat = (minutes) => {
   return `${Math.floor(minutes/60)}h ${minutes%60}m`;
 };
 
-export const sortFilmsByRates = (films) => {
-  const sortFilms = [...films];
-  sortFilms.sort((a, b) => {
-    return Math.floor(b.rating - a.rating);
-  });
-  return sortFilms;
+export const sortFilmsByRates = (filmA, filmB) => {
+  return Math.floor(filmB.rating - filmA.rating);
 };
 
-export const sortFilmsByComments = (films) => {
-  const sortFilms = [...films];
-  sortFilms.sort((a, b) => {
-    return Math.floor(b.comments.length - a.comments.length);
-  });
-  return sortFilms;
+export const sortFilmsByComments = (filmA, filmB) => {
+  return Math.floor(filmB.comments.length - filmA.comments.length);
+};
+
+export const sortFilmsByDate = (filmA, filmB) => {
+  return dayjs(filmB.releaseDate).diff(dayjs(filmA.releaseDate));
 };
 
 export const getFilmContainer = (component) => {
