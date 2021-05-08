@@ -43,14 +43,21 @@ export default class Filmboard {
     this._currentSortType = SortType.DEFAULT;
   }
 
-  init(films) {
-    this._films = films.slice();
-    this._defaultFilms = films.slice();
+  init() {
     this._renderSort();
     this._renderFilmBoard();
   }
 
-  _getTasks() {
+  _getFilms() {
+    switch (this._currentSortType) {
+      case SortType.RATE:
+        return this._filmsModel.getFilms().slice().sort(sortFilmsByRates);
+      case SortType.DATE:
+        return this._filmsModel.getFilms().slice().sort(sortFilmsByDate);
+      case SortType.COMMENTS:
+        return this._filmsModel.getFilms().slice().sort(sortFilmsByComments);
+    }
+
     return this._filmsModel.getFilms();
   }
 
@@ -208,9 +215,12 @@ export default class Filmboard {
   }
 
   _renderRegularCards() {
-    this._renderFilmsSlice(this._films, this._regularFilmsListContainer, 0, Math.min(this._films.length, this._renderedFilmsCount));
+    const films = this._getFilms();
+    const filmsCount = films.length;
+    const filmsGroup = films.slice(0, Math.min(filmsCount, this._renderedFilmsCount));
+    this._renderFilms(filmsGroup);
 
-    if(this._films.length > FILMS_COUNT_PER_STEP) {
+    if(filmsCount > this._renderedFilmsCount) {
       this._renderShowMoreButton();
     }
   }
@@ -233,17 +243,22 @@ export default class Filmboard {
   }
   // рендерит основной контейнер и списки фильмов
   _renderFilmBoard() {
+    const films = this._getFilms();
     this._renderFilmsContainer();
     this._renderRegular();
     this._renderRegularCards();
-    this._renderTopRated(this._films.sort(sortFilmsByRates));
-    this._renderMostComment(this._films.sort(sortFilmsByComments));
+    this._renderTopRated(films.sort(sortFilmsByRates));
+    this._renderMostComment(films.sort(sortFilmsByComments));
   }
-  // универсальный метод рендеринга пачки фильмов
+  // универсальный метод рендеринга пачки фильмов. Он останется для использования в экстра-списках.
   _renderFilmsSlice(list, container, from, to) {
     list
       .slice(from, to)
       .forEach((film) => this._renderFilm(container, film));
+  }
+  // рендер обычного списка. Массив фильмов для отрисовки мы получаем прямо из модели
+  _renderFilms(films) {
+    films.forEach((film) => this._renderFilm(this._regularFilmsListContainer, film));
   }
 
   _renderShowMoreButton() {
@@ -252,20 +267,25 @@ export default class Filmboard {
   }
 
   _handleShowMoreButtonClick() {
-    this._renderFilmsSlice(this._films, this._regularFilmsListContainer, this._renderedFilmsCount, this._renderedFilmsCount + FILMS_COUNT_PER_STEP);
-    this._renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
-    if(this._renderedFilmsCount >= this._films.length) {
+    const filmCount = this._getFilms().length;
+    const newRenderedFilmCount = Math.min(filmCount, this._renderedFilmsCount + FILMS_COUNT_PER_STEP);
+    const films = this._getFilms().slice(this._renderedFilmsCount, newRenderedFilmCount);
+
+    this._renderFilms(films);
+    this._renderedFilmsCount = newRenderedFilmCount;
+
+
+    if(this._renderedFilmsCount >= filmCount) {
       remove(this._showMoreComp);
     }
   }
 
-
   _handleFilmChange(updatedFilm) {
 
-    this._films = updateItem(this._films, updatedFilm);
-    this._defaultFilms = updateItem(this._defaultFilms, updatedFilm);
+    // Здесь будем вызывать обновление модели
 
+    // состояния карточки и попапа обновляется пока и без модели - любой чих перерисовывает карточку и обновляет конкретно ее данные. а вызов попапа происходит по этим данным, так что пока все синхронизировано.
     const filmsToUpdate = this._prevFilmCards.filter((prev) => prev.getFilmId() === updatedFilm.id);
 
     filmsToUpdate.forEach((upd) => {
@@ -276,6 +296,7 @@ export default class Filmboard {
     if(isPopupExist()) {
       this._renderPopup(updatedFilm);
     }
+
   }
 
   _handleSortTypeChange(sortType) {
@@ -283,29 +304,11 @@ export default class Filmboard {
       return;
     }
     // - Сортируем задачи
-    this._sortRegularList(sortType);
+    this._currentSortType = sortType;
     // - Очищаем список
     this._clearRegularList();
     // - Рендерим список заново
     this._renderRegularCards();
-  }
-
-  _sortRegularList(sortType) {
-    switch (sortType) {
-      case SortType.RATE:
-        this._films.sort(sortFilmsByRates);
-        break;
-      case SortType.DATE:
-        this._films.sort(sortFilmsByDate);
-        break;
-      case SortType.COMMENTS:
-        this._films.sort(sortFilmsByComments);
-        break;
-      default:
-        this._films = this._defaultFilms.slice();
-    }
-
-    this._currentSortType = sortType;
   }
 
   _clearRegularList() {

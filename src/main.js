@@ -28,7 +28,7 @@ const boardPresenter = new FilmBoard(siteMainEl, modelFilms);
 render(siteHeaderEl, new ProfileView(userStat), RenderPosition.BEFOREEND);
 render(siteMainEl, new MenuView(filters), RenderPosition.BEFOREEND);
 
-boardPresenter.init(films);
+boardPresenter.init();
 
 render(siteMainEl, new UserStatView(userStat), RenderPosition.BEFOREEND);
 
