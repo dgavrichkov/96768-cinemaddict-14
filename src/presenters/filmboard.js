@@ -29,14 +29,21 @@ export default class Filmboard {
     this._filmsModel = filmsModel;
     this._filmsComp = new FilmsView();
     this._sortComp = new SortView();
+    // this._showMoreComp = new ShowMoreView();
+
+    // this._sortComp = null;
+    this._showMoreComp = null;
+
     this._regularFilmsList = new FilmsListView(false, 'list');
     this._regularFilmsListContainer = getFilmContainer(this._regularFilmsList);
-    this._showMoreComp = new ShowMoreView();
+
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
+
     this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+
     this._prevFilmCards = [];
     this._openedPopup = null;
     this._currentSortType = SortType.DEFAULT;
@@ -79,7 +86,7 @@ export default class Filmboard {
     filmComponent.setClickFavoriteHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
+        UpdateType.PATCH,
         Object.assign(
           {},
           film,
@@ -92,7 +99,7 @@ export default class Filmboard {
     filmComponent.setClickWatchlistHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
+        UpdateType.PATCH,
         Object.assign(
           {},
           film,
@@ -105,7 +112,7 @@ export default class Filmboard {
     filmComponent.setClickWatchedHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
+        UpdateType.PATCH,
         Object.assign(
           {},
           film,
@@ -160,7 +167,7 @@ export default class Filmboard {
     popupComponent.setClickFavoriteHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
+        UpdateType.PATCH,
         Object.assign(
           {},
           film,
@@ -175,7 +182,7 @@ export default class Filmboard {
     popupComponent.setClickWatchlistHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
+        UpdateType.PATCH,
         Object.assign(
           {},
           film,
@@ -190,7 +197,7 @@ export default class Filmboard {
     popupComponent.setClickWatchedHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
+        UpdateType.PATCH,
         Object.assign(
           {},
           film,
@@ -226,10 +233,11 @@ export default class Filmboard {
   _renderRegular() {
     render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
   }
-
+  // рендер карточек обычного списка и кнопки допоказа
   _renderRegularCards() {
     const films = this._getFilms();
     const filmsCount = films.length;
+
     const filmsGroup = films.slice(0, Math.min(filmsCount, this._renderedFilmsCount));
     this._renderFilms(filmsGroup);
 
@@ -275,8 +283,15 @@ export default class Filmboard {
   }
 
   _renderShowMoreButton() {
-    render(this._regularFilmsList, this._showMoreComp, RenderPosition.BEFOREEND);
+
+    if (this._showMoreComp !== null) {
+      this._showMoreComp = null;
+    }
+
+    this._showMoreComp = new ShowMoreView();
     this._showMoreComp.setClickHandler(this._handleShowMoreButtonClick);
+
+    render(this._regularFilmsList, this._showMoreComp, RenderPosition.BEFOREEND);
   }
 
   _handleShowMoreButtonClick() {
@@ -294,7 +309,44 @@ export default class Filmboard {
     }
   }
 
-  _handleFilmChange(updatedFilm) {
+  _handleViewAction(actionType, updateType, update) {
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this._filmsModel.updateFilm(updateType, update);
+        break;
+    }
+  }
+
+  _handleModelEvent(updateType, data) {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this._onFilmChange(data);
+        break;
+      case UpdateType.MINOR:
+        this._clearRegularList({resetRenderedFilmCount: true});
+        this._renderRegularCards();
+        break;
+      case UpdateType.MAJOR:
+        this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true});
+        this._renderRegularCards();
+        break;
+    }
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+    // - Сортируем задачи
+    this._currentSortType = sortType;
+    // - Очищаем список
+    this._clearRegularList({resetRenderedFilmCount: true});
+    // - Рендерим список заново
+    this._renderRegularCards();
+  }
+
+  // функция выполняется при обновлении карточки
+  _onFilmChange(updatedFilm) {
 
     const filmsToUpdate = this._prevFilmCards.filter((prev) => prev.getFilmId() === updatedFilm.id);
 
@@ -306,38 +358,9 @@ export default class Filmboard {
     if(isPopupExist()) {
       this._renderPopup(updatedFilm);
     }
-
   }
 
-  _handleViewAction(actionType, updateType, update) {
-    console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
-  }
-
-  _handleModelEvent(updateType, data) {
-    console.log(updateType, data);
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
-  }
-
-  _handleSortTypeChange(sortType) {
-    if (this._currentSortType === sortType) {
-      return;
-    }
-    // - Сортируем задачи
-    this._currentSortType = sortType;
-    // - Очищаем список
-    this._clearRegularList();
-    // - Рендерим список заново
-    this._renderRegularCards();
-  }
-
-  _clearRegularList() {
+  _clearRegularList({resetRenderedFilmCount = false, resetSortType = false} = {}) {
     const regularListCards = this._prevFilmCards.filter((card) => {
       return card.getElement().closest('[data-list-id]').dataset.listId === 'list';
     });
@@ -347,5 +370,13 @@ export default class Filmboard {
       this._prevFilmCards.splice(prevIdx, 1);
     });
     remove(this._showMoreComp);
+
+    if(resetRenderedFilmCount) {
+      this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
+    }
+
+    if(resetSortType) {
+      this._currentSortType = SortType.DEFAULT;
+    }
   }
 }
