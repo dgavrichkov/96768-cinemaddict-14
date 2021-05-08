@@ -4,7 +4,6 @@ import FilmCardView from '../view/film-card.js';
 import ShowMoreView from '../view/show-more.js';
 import FilmDetailsView from '../view/film-details.js';
 import SortView from '../view/sort.js';
-
 import {
   sortFilmsByComments,
   sortFilmsByRates,
@@ -12,7 +11,6 @@ import {
   getFilmContainer,
   isPopupExist
 } from '../utils/film.js';
-import {updateItem} from '../utils/common.js';
 import {
   render,
   RenderPosition,
@@ -20,7 +18,7 @@ import {
   replace
 } from '../utils/render.js';
 import { nanoid } from 'nanoid';
-import {SortType} from '../const.js';
+import {SortType, UserAction, UpdateType} from '../const.js';
 
 const FILMS_COUNT_PER_STEP = 5;
 const EXTRA_LIST_COUNT = 2;
@@ -36,11 +34,14 @@ export default class Filmboard {
     this._showMoreComp = new ShowMoreView();
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
     this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
-    this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._prevFilmCards = [];
     this._openedPopup = null;
     this._currentSortType = SortType.DEFAULT;
+
+    this._filmsModel.addObserver(this._handleModelEvent);
   }
 
   init() {
@@ -76,7 +77,9 @@ export default class Filmboard {
     const filmComponent = new FilmCardView(film);
     filmComponent.prevId = nanoid();
     filmComponent.setClickFavoriteHandler(() => {
-      this._handleFilmChange(
+      this._handleViewAction(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -87,7 +90,9 @@ export default class Filmboard {
       );
     });
     filmComponent.setClickWatchlistHandler(() => {
-      this._handleFilmChange(
+      this._handleViewAction(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -98,7 +103,9 @@ export default class Filmboard {
       );
     });
     filmComponent.setClickWatchedHandler(() => {
-      this._handleFilmChange(
+      this._handleViewAction(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -151,7 +158,9 @@ export default class Filmboard {
     });
 
     popupComponent.setClickFavoriteHandler(() => {
-      this._handleFilmChange(
+      this._handleViewAction(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -164,7 +173,9 @@ export default class Filmboard {
     });
 
     popupComponent.setClickWatchlistHandler(() => {
-      this._handleFilmChange(
+      this._handleViewAction(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -177,7 +188,9 @@ export default class Filmboard {
     });
 
     popupComponent.setClickWatchedHandler(() => {
-      this._handleFilmChange(
+      this._handleViewAction(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -283,9 +296,6 @@ export default class Filmboard {
 
   _handleFilmChange(updatedFilm) {
 
-    // Здесь будем вызывать обновление модели
-
-    // состояния карточки и попапа обновляется пока и без модели - любой чих перерисовывает карточку и обновляет конкретно ее данные. а вызов попапа происходит по этим данным, так что пока все синхронизировано.
     const filmsToUpdate = this._prevFilmCards.filter((prev) => prev.getFilmId() === updatedFilm.id);
 
     filmsToUpdate.forEach((upd) => {
@@ -297,6 +307,22 @@ export default class Filmboard {
       this._renderPopup(updatedFilm);
     }
 
+  }
+
+  _handleViewAction(actionType, updateType, update) {
+    console.log(actionType, updateType, update);
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+  }
+
+  _handleModelEvent(updateType, data) {
+    console.log(updateType, data);
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
   }
 
   _handleSortTypeChange(sortType) {
