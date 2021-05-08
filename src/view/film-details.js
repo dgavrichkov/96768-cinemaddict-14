@@ -228,6 +228,10 @@ export default class FilmDetails extends SmartView {
     emojies.forEach((emoji) => {
       emoji.addEventListener('click', this._clickEmojiHandler);
     });
+
+    this.getElement().querySelector('.film-details__poster-img').addEventListener('click', () => {
+      console.log(this._state);
+    });
   }
 
   setClickCloseHandler(callback) {

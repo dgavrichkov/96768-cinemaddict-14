@@ -26,8 +26,9 @@ const FILMS_COUNT_PER_STEP = 5;
 const EXTRA_LIST_COUNT = 2;
 
 export default class Filmboard {
-  constructor(container) {
+  constructor(container, filmsModel) {
     this._mainEl = container;
+    this._filmsModel = filmsModel;
     this._filmsComp = new FilmsView();
     this._sortComp = new SortView();
     this._regularFilmsList = new FilmsListView(false, 'list');
@@ -47,6 +48,10 @@ export default class Filmboard {
     this._defaultFilms = films.slice();
     this._renderSort();
     this._renderFilmBoard();
+  }
+
+  _getTasks() {
+    return this._filmsModel.getFilms();
   }
 
   _renderSort() {

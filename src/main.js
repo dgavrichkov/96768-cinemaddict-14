@@ -8,6 +8,7 @@ import {generateFilter} from './mock/filter.js';
 import {generateUserstat} from './mock/userStat.js';
 import {render, RenderPosition} from './utils/render.js';
 import {userFilms} from './utils/film.js';
+import FilmsModel from './model/movies.js';
 
 const FILMS_COUNT = 22;
 
@@ -19,7 +20,10 @@ const siteHeaderEl = document.querySelector('.header');
 const siteMainEl = document.querySelector('.main');
 const siteFooterEl = document.querySelector('.footer');
 
-const boardPresenter = new FilmBoard(siteMainEl);
+const modelFilms = new FilmsModel();
+modelFilms.setFilms(films);
+
+const boardPresenter = new FilmBoard(siteMainEl, modelFilms);
 
 render(siteHeaderEl, new ProfileView(userStat), RenderPosition.BEFOREEND);
 render(siteMainEl, new MenuView(filters), RenderPosition.BEFOREEND);
