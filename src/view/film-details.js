@@ -188,12 +188,20 @@ export default class FilmDetails extends SmartView {
     this._clickFavoriteHandler = this._clickFavoriteHandler.bind(this);
     this._clickWatchlistHandler = this._clickWatchlistHandler.bind(this);
     this._clickWatchedHandler = this._clickWatchedHandler.bind(this);
-    this._pickEmoji = this._pickEmoji.bind(this);
+    this._clickEmojiHandler = this._clickEmojiHandler.bind(this);
     this._setInnerHandlers();
   }
 
   getTemplate() {
     return createFilmDetailsTemplate(this._state);
+  }
+
+  _clickEmojiHandler(e) {
+    e.preventDefault();
+    this.updateData({
+      pickedEmoji: e.target.value,
+      scrollPos: this.getElement().scrollTop,
+    });
   }
 
   _clickCloseHandler(e) {
@@ -214,23 +222,12 @@ export default class FilmDetails extends SmartView {
     this._callback.watchedClick();
   }
 
-  _pickEmoji(e) {
-    e.preventDefault();
-    this.updateData({
-      pickedEmoji: e.target.value,
-      scrollPos: this.getElement().scrollTop,
-    });
-  }
-
-  _setEmojiHandlers() {
+  // это только те обработчики, до которых нет дела презентеру. Их дело - просто обновить состояние.
+  _setInnerHandlers() {
     const emojies = this.getElement().querySelectorAll('.film-details__emoji-item');
     emojies.forEach((emoji) => {
-      emoji.addEventListener('click', this._pickEmoji);
+      emoji.addEventListener('click', this._clickEmojiHandler);
     });
-  }
-
-  _setInnerHandlers() {
-    this._setEmojiHandlers();
   }
 
   setClickCloseHandler(callback) {
@@ -255,13 +252,13 @@ export default class FilmDetails extends SmartView {
     const watchedTrg = this.getElement().querySelector('.js-watched');
     watchedTrg.addEventListener('click', this._clickWatchedHandler);
   }
-
+  // устанавливает позицию скролла. Метод публичен, так как его вызывает презентер при перерисовке попапа
   setScrollPos() {
     if(this._state.scrollPos !== 0) {
       this.getElement().scrollTop = this._state.scrollPos;
     }
   }
-
+  // повторная установка обработчиков клика и позиции скролла. В общем, то, что нужно восстановить, когда перерисовывается попап
   restoreElement() {
     this._setInnerHandlers();
     this.setClickCloseHandler(this._callback.closeClick);
@@ -270,7 +267,7 @@ export default class FilmDetails extends SmartView {
     this.setClickWatchlistHandler(this._callback.watchlistClick);
     this.setScrollPos();
   }
-
+  // Переданные данные превращает в состояние. Вызывается всякий раз при создании экземпляра.
   static parseDataToState(film) {
     return Object.assign(
       {},
@@ -282,7 +279,7 @@ export default class FilmDetails extends SmartView {
       },
     );
   }
-
+  // метод, который пока еще не пригодился. должен вызываться тогда, когда вследствие изменения состояния нужно будет изменить данные. Результат вызова попадет в метод презентера, который будет вызывать изменение модели.
   static parseStateToData(state) {
     state = Object.assign({}, state);
 
