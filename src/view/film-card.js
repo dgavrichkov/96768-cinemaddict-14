@@ -15,16 +15,16 @@ const createFilmCardTemplate = (film) => {
     releaseYear,
     runtime,
     genres,
-    watchlist,
-    alreadyWatched,
-    favorite,
+    isWatchlist,
+    isWatched,
+    isFavorite,
   } = film;
 
-  const favoriteClass = favorite ? 'film-card__controls-item--active film-card__controls-item--favorite' : 'film-card__controls-item--favorite';
-  const watchlistClass = watchlist
+  const favoriteClass = isFavorite ? 'film-card__controls-item--active film-card__controls-item--favorite' : 'film-card__controls-item--favorite';
+  const watchlistClass = isWatchlist
     ? 'film-card__controls-item--active film-card__controls-item--add-to-watchlist'
     : 'film-card__controls-item--add-to-watchlist';
-  const watchedClass = alreadyWatched
+  const watchedClass = isWatched
     ? 'film-card__controls-item--active film-card__controls-item--mark-as-watched'
     : 'film-card__controls-item--mark-as-watched';
 
@@ -51,7 +51,8 @@ const createFilmCardTemplate = (film) => {
 export default class FilmCard extends AbstractView {
   constructor(film) {
     super();
-    this._film = film;
+    this._state = FilmCard.parseDataToState(film);
+
     this._openDetailHandler = this._openDetailHandler.bind(this);
     this._clickFavoriteHandler = this._clickFavoriteHandler.bind(this);
     this._clickWatchlistHandler = this._clickWatchlistHandler.bind(this);
@@ -59,7 +60,7 @@ export default class FilmCard extends AbstractView {
   }
 
   getTemplate() {
-    return createFilmCardTemplate(this._film);
+    return createFilmCardTemplate(this._state);
   }
 
   _openDetailHandler(e) {
@@ -115,6 +116,28 @@ export default class FilmCard extends AbstractView {
   }
 
   getFilmId() {
-    return this._film.id;
+    return this._state.id;
+  }
+
+  static parseDataToState(film) {
+    return Object.assign(
+      {},
+      film,
+      {
+        isFavorite: film.favorite,
+        isWatched: film.alreadyWatched,
+        isWatchlist: film.watchlist,
+      },
+    );
+  }
+
+  static parseStateToData(state) {
+    state = Object.assign({}, state);
+
+    delete state.isFavorite;
+    delete state.isWatched;
+    delete state.isWatchlist;
+
+    return state;
   }
 }

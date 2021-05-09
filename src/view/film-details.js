@@ -1,4 +1,4 @@
-import AbstractView from './abstract.js';
+import SmartView from './smart.js';
 import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils/film.js';
 
 const createGenreItem = (genre) => {
@@ -23,6 +23,10 @@ const createCommentItem = (comment) => {
   `;
 };
 
+const createNewCommentEmojiImg = (emoji) => {
+  return `<img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">`;
+};
+
 export const createFilmDetailsTemplate = (film) => {
   const {
     name,
@@ -39,9 +43,10 @@ export const createFilmDetailsTemplate = (film) => {
     actors,
     runtime,
     comments,
-    watchlist,
-    alreadyWatched,
-    favorite,
+    isWatchlist,
+    isWatched,
+    isFavorite,
+    pickedEmoji,
   } = film;
 
   const genreItemsList = genres.map((genre) => {
@@ -51,6 +56,8 @@ export const createFilmDetailsTemplate = (film) => {
   const commentsList = comments.map((comment) => {
     return createCommentItem(comment);
   }).join('');
+
+  const newCommentImg = createNewCommentEmojiImg(pickedEmoji);
 
   return `<section class="film-details">
       <form class="film-details__inner" action="" method="get">
@@ -116,13 +123,13 @@ export const createFilmDetailsTemplate = (film) => {
           </div>
 
           <section class="film-details__controls">
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${watchlist ? 'checked' : ''}>
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${isWatchlist ? 'checked' : ''}>
             <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist js-watchlist">Add to watchlist</label>
 
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${alreadyWatched ? 'checked' : ''}>
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${isWatched ? 'checked' : ''}>
             <label for="watched" class="film-details__control-label film-details__control-label--watched js-watched">Already watched</label>
 
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${favorite ? 'checked' : ''}>
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${isFavorite ? 'checked' : ''}>
             <label for="favorite" class="film-details__control-label film-details__control-label--favorite js-favorite">Add to favorites</label>
           </section>
         </div>
@@ -136,7 +143,9 @@ export const createFilmDetailsTemplate = (film) => {
             </ul>
 
             <div class="film-details__new-comment">
-              <div class="film-details__add-emoji-label"></div>
+              <div class="film-details__add-emoji-label">
+                ${pickedEmoji ? newCommentImg : ''}
+              </div>
 
               <label class="film-details__comment-label">
                 <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
@@ -171,23 +180,25 @@ export const createFilmDetailsTemplate = (film) => {
   `;
 };
 
-export default class FilmDetails extends AbstractView {
+export default class FilmDetails extends SmartView {
   constructor(film) {
     super();
-    this._film = film;
+    this._state = FilmDetails.parseDataToState(film);
     this._clickCloseHandler = this._clickCloseHandler.bind(this);
     this._clickFavoriteHandler = this._clickFavoriteHandler.bind(this);
     this._clickWatchlistHandler = this._clickWatchlistHandler.bind(this);
     this._clickWatchedHandler = this._clickWatchedHandler.bind(this);
+    this._pickEmoji = this._pickEmoji.bind(this);
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return createFilmDetailsTemplate(this._film);
+    return createFilmDetailsTemplate(this._state);
   }
 
   _clickCloseHandler(e) {
     e.preventDefault();
-    this._callback.click();
+    this._callback.closeClick();
     this.getElement().querySelector('.film-details__close').removeEventListener('click', this._clickCloseHandler);
   }
 
@@ -203,8 +214,27 @@ export default class FilmDetails extends AbstractView {
     this._callback.watchedClick();
   }
 
+  _pickEmoji(e) {
+    e.preventDefault();
+    this.updateData({
+      pickedEmoji: e.target.value,
+      scrollPos: this.getElement().scrollTop,
+    });
+  }
+
+  _setEmojiHandlers() {
+    const emojies = this.getElement().querySelectorAll('.film-details__emoji-item');
+    emojies.forEach((emoji) => {
+      emoji.addEventListener('click', this._pickEmoji);
+    });
+  }
+
+  _setInnerHandlers() {
+    this._setEmojiHandlers();
+  }
+
   setClickCloseHandler(callback) {
-    this._callback.click = callback;
+    this._callback.closeClick = callback;
     this.getElement().querySelector('.film-details__close').addEventListener('click', this._clickCloseHandler);
   }
 
@@ -224,5 +254,42 @@ export default class FilmDetails extends AbstractView {
     this._callback.watchedClick = callback;
     const watchedTrg = this.getElement().querySelector('.js-watched');
     watchedTrg.addEventListener('click', this._clickWatchedHandler);
+  }
+
+  setScrollPos() {
+    if(this._state.scrollPos !== 0) {
+      this.getElement().scrollTop = this._state.scrollPos;
+    }
+  }
+
+  restoreElement() {
+    this._setInnerHandlers();
+    this.setClickCloseHandler(this._callback.closeClick);
+    this.setClickWatchedHandler(this._callback.watchedClick);
+    this.setClickFavoriteHandler(this._callback.favoriteClick);
+    this.setClickWatchlistHandler(this._callback.watchlistClick);
+    this.setScrollPos();
+  }
+
+  static parseDataToState(film) {
+    return Object.assign(
+      {},
+      film,
+      {
+        isFavorite: film.favorite,
+        isWatched: film.alreadyWatched,
+        isWatchlist: film.watchlist,
+      },
+    );
+  }
+
+  static parseStateToData(state) {
+    state = Object.assign({}, state);
+
+    delete state.isFavorite;
+    delete state.isWatched;
+    delete state.isWatchlist;
+
+    return state;
   }
 }
