@@ -13,7 +13,6 @@ import FilterModel from './model/filter.js';
 const FILMS_COUNT = 22;
 
 const films = new Array(FILMS_COUNT).fill().map(generateFilm);
-
 const userStat = generateUserstat(userFilms(films));
 
 const siteHeaderEl = document.querySelector('.header');
@@ -25,7 +24,7 @@ const modelFilms = new FilmsModel();
 modelFilms.setFilms(films);
 
 const filterPresenter = new Filter(siteMainEl, modelFilter, modelFilms);
-const boardPresenter = new FilmBoard(siteMainEl, modelFilms);
+const boardPresenter = new FilmBoard(siteMainEl, modelFilms, modelFilter);
 
 render(siteHeaderEl, new ProfileView(userStat), RenderPosition.BEFOREEND);
 

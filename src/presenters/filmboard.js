@@ -24,12 +24,11 @@ const FILMS_COUNT_PER_STEP = 5;
 const EXTRA_LIST_COUNT = 2;
 
 export default class Filmboard {
-  constructor(container, filmsModel) {
+  constructor(container, filmsModel, filterModel) {
     this._mainEl = container;
     this._filmsModel = filmsModel;
+    this._filterModel = filterModel;
     this._filmsComp = new FilmsView();
-    // this._sortComp = new SortView();
-    // this._showMoreComp = new ShowMoreView();
 
     this._sortComp = null;
     this._showMoreComp = null;
@@ -47,11 +46,12 @@ export default class Filmboard {
     this._prevFilmCards = [];
     this._openedPopup = null;
     this._currentSortType = SortType.DEFAULT;
-
-    this._filmsModel.addObserver(this._handleModelEvent);
   }
 
   init() {
+    this._filmsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
     this._renderFilmBoard();
   }
 
@@ -61,11 +61,9 @@ export default class Filmboard {
         return this._filmsModel.getFilms().slice().sort(sortFilmsByRates);
       case SortType.DATE:
         return this._filmsModel.getFilms().slice().sort(sortFilmsByDate);
-      case SortType.COMMENTS:
-        return this._filmsModel.getFilms().slice().sort(sortFilmsByComments);
     }
 
-    return this._filmsModel.getFilms();
+    return this._filmsModel.getFilms().slice();
   }
 
   _renderSort() {
@@ -334,6 +332,7 @@ export default class Filmboard {
         break;
       case UpdateType.MAJOR:
         this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true});
+        this._renderSort();
         this._renderRegularCards();
         break;
     }

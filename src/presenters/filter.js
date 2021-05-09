@@ -1,5 +1,6 @@
 import {filter} from '../utils/filter.js';
-import { render, RenderPosition } from '../utils/render.js';
+import {FilterType, UpdateType} from '../const';
+import { render, RenderPosition, replace, remove } from '../utils/render.js';
 import FilterView from '../view/menu.js';
 
 
@@ -14,6 +15,9 @@ export default class Filter {
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
 
+    this._filmsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
   }
 
   init() {
@@ -25,8 +29,11 @@ export default class Filter {
 
     if(prevFilterComp === null) {
       render(this._filterContainer, this._filterComp, RenderPosition.BEFOREEND);
+      return;
     }
 
+    replace(this._filterComp, prevFilterComp);
+    remove(prevFilterComp);
   }
 
   _getFilters() {
@@ -34,20 +41,24 @@ export default class Filter {
 
     // отсюда должно возвращаться вот такое
     const filters = {
-      all: 0,
-      watchlist: 10,
-      favorite: 10,
-      history: 10,
+      all: filter[FilterType.ALL](films).length,
+      watchlist: filter[FilterType.WATCHLIST](films).length,
+      favorite: filter[FilterType.FAVORITES](films).length,
+      history: filter[FilterType.WATCHED](films).length,
     };
 
     return filters;
   }
 
   _handleModelEvent() {
-
+    // this.init();
   }
 
-  _handleFilterTypeChange() {
-    console.log('filter type changed');
+  _handleFilterTypeChange(filterType) {
+    if(this._filterModel.getFilter() === filterType) {
+      return;
+    }
+
+    this._filterModel.setFilter(UpdateType.MAJOR, filterType);
   }
 }
