@@ -28,10 +28,10 @@ export default class Filmboard {
     this._mainEl = container;
     this._filmsModel = filmsModel;
     this._filmsComp = new FilmsView();
-    this._sortComp = new SortView();
+    // this._sortComp = new SortView();
     // this._showMoreComp = new ShowMoreView();
 
-    // this._sortComp = null;
+    this._sortComp = null;
     this._showMoreComp = null;
 
     this._regularFilmsList = new FilmsListView(false, 'list');
@@ -52,7 +52,6 @@ export default class Filmboard {
   }
 
   init() {
-    this._renderSort();
     this._renderFilmBoard();
   }
 
@@ -70,9 +69,15 @@ export default class Filmboard {
   }
 
   _renderSort() {
-    render(this._mainEl, this._sortComp, RenderPosition.BEFOREEND);
+    if(this._sortComp !== null) {
+      this._sortComp = null;
+    }
 
+    this._sortComp = new SortView(this._currentSortType);
     this._sortComp.setSortTypeChangeHandler(this._handleSortTypeChange);
+
+    render(this._filmsComp, this._sortComp, RenderPosition.AFTERBEGIN);
+
   }
 
   _renderFilmsContainer() {
@@ -265,6 +270,7 @@ export default class Filmboard {
   // рендерит основной контейнер и списки фильмов
   _renderFilmBoard() {
     const films = this._getFilms();
+    this._renderSort();
     this._renderFilmsContainer();
     this._renderRegular();
     this._renderRegularCards();
@@ -342,6 +348,7 @@ export default class Filmboard {
     // - Очищаем список
     this._clearRegularList({resetRenderedFilmCount: true});
     // - Рендерим список заново
+    this._renderSort();
     this._renderRegularCards();
   }
 
@@ -369,6 +376,8 @@ export default class Filmboard {
       const prevIdx = this._prevFilmCards.indexOf(card);
       this._prevFilmCards.splice(prevIdx, 1);
     });
+
+    remove(this._sortComp);
     remove(this._showMoreComp);
 
     if(resetRenderedFilmCount) {
