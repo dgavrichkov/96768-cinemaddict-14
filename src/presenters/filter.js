@@ -51,7 +51,7 @@ export default class Filter {
   }
 
   _handleModelEvent() {
-    // this.init();
+    this.init();
   }
 
   _handleFilterTypeChange(filterType) {

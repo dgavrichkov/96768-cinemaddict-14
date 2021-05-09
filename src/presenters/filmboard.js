@@ -11,6 +11,7 @@ import {
   getFilmContainer,
   isPopupExist
 } from '../utils/film.js';
+import {filter} from '../utils/filter.js';
 import {
   render,
   RenderPosition,
@@ -56,14 +57,18 @@ export default class Filmboard {
   }
 
   _getFilms() {
+    const filterType = this._filterModel.getFilter();
+    const films = this._filmsModel.getFilms();
+    const filteredFilms = filter[filterType](films);
+
     switch (this._currentSortType) {
       case SortType.RATE:
-        return this._filmsModel.getFilms().slice().sort(sortFilmsByRates);
+        return filteredFilms.sort(sortFilmsByRates);
       case SortType.DATE:
-        return this._filmsModel.getFilms().slice().sort(sortFilmsByDate);
+        return filteredFilms.sort(sortFilmsByDate);
     }
 
-    return this._filmsModel.getFilms().slice();
+    return filteredFilms;
   }
 
   _renderSort() {
