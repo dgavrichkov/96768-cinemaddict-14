@@ -94,7 +94,7 @@ export default class Filmboard {
     filmComponent.setClickFavoriteHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.PATCH,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -107,7 +107,7 @@ export default class Filmboard {
     filmComponent.setClickWatchlistHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.PATCH,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -120,7 +120,7 @@ export default class Filmboard {
     filmComponent.setClickWatchedHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.PATCH,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -175,7 +175,7 @@ export default class Filmboard {
     popupComponent.setClickFavoriteHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.PATCH,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -190,7 +190,7 @@ export default class Filmboard {
     popupComponent.setClickWatchlistHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.PATCH,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -205,7 +205,7 @@ export default class Filmboard {
     popupComponent.setClickWatchedHandler(() => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.PATCH,
+        UpdateType.MINOR,
         Object.assign(
           {},
           film,
@@ -332,7 +332,8 @@ export default class Filmboard {
         this._onFilmChange(data);
         break;
       case UpdateType.MINOR:
-        this._clearRegularList({resetRenderedFilmCount: true});
+        this._clearRegularList();
+        this._renderSort();
         this._renderRegularCards();
         break;
       case UpdateType.MAJOR:
@@ -372,9 +373,12 @@ export default class Filmboard {
   }
 
   _clearRegularList({resetRenderedFilmCount = false, resetSortType = false} = {}) {
+    // здесь нам нужны только карточки из основного списка. Так как у них нет презентеров, получим их через массив сохранненных карточек.
     const regularListCards = this._prevFilmCards.filter((card) => {
       return card.getElement().closest('[data-list-id]').dataset.listId === 'list';
     });
+    const filmCount = regularListCards.length;
+
     regularListCards.forEach((card) => {
       remove(card);
       const prevIdx = this._prevFilmCards.indexOf(card);
@@ -386,6 +390,10 @@ export default class Filmboard {
 
     if(resetRenderedFilmCount) {
       this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
+    } else {
+      // На случай, если перерисовка доски вызвана
+      // уменьшением количества карточек (удаление)
+      this._renderedFilmsCount = Math.min(filmCount, this._renderedFilmsCount);
     }
 
     if(resetSortType) {
