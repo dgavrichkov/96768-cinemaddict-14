@@ -1,6 +1,9 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import {COMMENT_AUTHOR} from '../mock/mock-const.js';
+import {getRandomInteger} from './common.js';
+import {nanoid} from 'nanoid';
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -64,4 +67,14 @@ export const getFilmContainer = (component) => {
 export const isPopupExist = () => {
   const popup = document.querySelector('.film-details');
   return popup !== null;
+};
+
+export const createComment = (emoji, text) => {
+  return {
+    id: nanoid(),
+    date: dayjs(),
+    emoji: emoji,
+    text: text,
+    author: COMMENT_AUTHOR[getRandomInteger(0, COMMENT_AUTHOR.length - 1)],
+  };
 };

@@ -217,6 +217,20 @@ export default class Filmboard {
       );
     });
 
+    popupComponent.setFormSubmitHandler((update) => {
+      this._handleViewAction(
+        UserAction.UPDATE_FILM,
+        UpdateType.PATCH,
+        Object.assign(
+          {},
+          update,
+          {
+            scrollPos: popupComponent.getElement().scrollTop,
+          },
+        ),
+      );
+    });
+
     document.body.classList.add('hide-overflow');
     document.addEventListener('click', clickOutPopup);
     document.addEventListener('keydown', handleEscKeyDown);
