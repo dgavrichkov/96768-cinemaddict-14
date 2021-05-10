@@ -165,7 +165,6 @@ const generateFilmCountry = () => {
 export const generateFilm = () => {
   const name = generateFilmName();
   const releaseDate = generateFilmReleaseDate();
-  const releaseYear = releaseDate.year();
   const comments = generateFilmComments(releaseDate);
   const alreadyWatched = Boolean(getRandomInteger(0, 1));
   let watchingDate = null;
@@ -181,7 +180,6 @@ export const generateFilm = () => {
     comments,
     rating: generateFilmRating(),
     releaseDate: releaseDate.format('D MMMM YYYY'),
-    releaseYear,
     runtime: generateFilmRuntime(),
     genres: generateFilmGenre(),
     ageRating: generateFilmAgeRate(),

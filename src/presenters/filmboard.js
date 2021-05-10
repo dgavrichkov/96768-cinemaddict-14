@@ -126,6 +126,14 @@ export default class Filmboard {
       }
     };
 
+    const handleEscKeyDown = (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        e.preventDefault();
+        document.removeEventListener('keydown', handleEscKeyDown);
+        this._popupOnClose(popupComponent);
+      }
+    };
+
     popupComponent.setClickCloseHandler(() => {
       this._popupOnClose(popupComponent);
     });
@@ -171,16 +179,16 @@ export default class Filmboard {
 
     document.body.classList.add('hide-overflow');
     document.addEventListener('click', clickOutPopup);
+    document.addEventListener('keydown', handleEscKeyDown);
 
     if(this._openedPopup === null) {
       render(this._mainEl, popupComponent, RenderPosition.AFTEREND);
       this._openedPopup = popupComponent;
     } else {
       replace(popupComponent, this._openedPopup);
-      popupComponent.setScrollPos();
       this._openedPopup = popupComponent;
+      popupComponent.setScrollPos();
     }
-
   }
 
   _popupOnClose(popup) {
@@ -246,6 +254,7 @@ export default class Filmboard {
       remove(this._showMoreComp);
     }
   }
+
 
   _handleFilmChange(updatedFilm) {
 
