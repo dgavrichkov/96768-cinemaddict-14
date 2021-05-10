@@ -36,6 +36,8 @@ export default class Filmboard {
 
     this._regularFilmsList = null;
     this._regularFilmsListEmpty = null;
+    this._topRatedFilmsList = null;
+    this._mostCommentFilmsList = null;
 
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
 
@@ -53,7 +55,9 @@ export default class Filmboard {
     this._filmsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
 
-    this._renderFilmBoard();
+
+    this._renderFilmsContainer();
+    this._renderAllLists();
   }
 
   _getFilms() {
@@ -220,7 +224,7 @@ export default class Filmboard {
     popupComponent.setFormSubmitHandler((update) => {
       this._handleViewAction(
         UserAction.UPDATE_FILM,
-        UpdateType.PATCH,
+        UpdateType.MINOR,
         Object.assign(
           {},
           update,
@@ -282,25 +286,24 @@ export default class Filmboard {
   }
   // рендер экстра-списка - рейтинговые
   _renderTopRated(films) {
-    const topRatedFilmsList = new FilmsListView(true, 'top-rated');
-    const topRatedFilmsListContainer = getFilmContainer(topRatedFilmsList);
+    this._topRatedFilmsList = new FilmsListView(true, 'top-rated');
+    const topRatedFilmsListContainer = getFilmContainer(this._topRatedFilmsList);
 
-    render(this._filmsComp, topRatedFilmsList, RenderPosition.BEFOREEND);
+    render(this._filmsComp, this._topRatedFilmsList, RenderPosition.BEFOREEND);
 
     this._renderFilmsSlice(films, topRatedFilmsListContainer, 0, Math.min(films.length, EXTRA_LIST_COUNT));
   }
   // рендер экстра-списка - комментируемые
   _renderMostComment(films) {
-    const mostCommentFilmsList = new FilmsListView(true, 'most-commented');
-    const mostCommentFilmsListContainer = getFilmContainer(mostCommentFilmsList);
-    render(this._filmsComp, mostCommentFilmsList, RenderPosition.BEFOREEND);
+    this._mostCommentFilmsList = new FilmsListView(true, 'most-commented');
+    const mostCommentFilmsListContainer = getFilmContainer(this._mostCommentFilmsList);
+    render(this._filmsComp, this._mostCommentFilmsList, RenderPosition.BEFOREEND);
 
     this._renderFilmsSlice(films, mostCommentFilmsListContainer, 0, Math.min(films.length, EXTRA_LIST_COUNT));
   }
-  // рендерит основной контейнер и списки фильмов
-  _renderFilmBoard() {
+  // рендерит списки фильмов.
+  _renderAllLists() {
     const films = this._getFilms();
-    this._renderFilmsContainer();
     if(films.length === 0) {
       this._renderRegularListEmpty();
       return;
@@ -362,8 +365,8 @@ export default class Filmboard {
         this._onFilmChange(data);
         break;
       case UpdateType.MINOR:
-        this._clearRegularList();
-        this._renderRegularList();
+        this._clearRegularList({resetAllLists: true});
+        this._renderAllLists();
         break;
       case UpdateType.MAJOR:
         this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true});
@@ -376,11 +379,8 @@ export default class Filmboard {
     if (this._currentSortType === sortType) {
       return;
     }
-    // - Сортируем задачи
     this._currentSortType = sortType;
-    // - Очищаем список
     this._clearRegularList({resetRenderedFilmCount: true});
-    // - Рендерим список заново
     this._renderRegularList();
   }
 
@@ -399,7 +399,7 @@ export default class Filmboard {
     }
   }
 
-  _clearRegularList({resetRenderedFilmCount = false, resetSortType = false} = {}) {
+  _clearRegularList({resetRenderedFilmCount = false, resetSortType = false, resetAllLists = false} = {}) {
     // здесь нам нужны только карточки из основного списка. Так как у них нет презентеров, получим их через массив сохранненных карточек.
     const regularListCards = this._prevFilmCards.filter((card) => {
       return card.getElement().closest('[data-list-id]').dataset.listId === 'list';
@@ -425,6 +425,12 @@ export default class Filmboard {
 
     if(resetSortType) {
       this._currentSortType = SortType.DEFAULT;
+    }
+
+    if(resetAllLists) {
+      remove(this._regularFilmsList);
+      remove(this._topRatedFilmsList);
+      remove(this._mostCommentFilmsList);
     }
   }
 }
