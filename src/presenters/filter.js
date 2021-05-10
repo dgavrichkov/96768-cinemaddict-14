@@ -38,8 +38,6 @@ export default class Filter {
 
   _getFilters() {
     const films = this._filmsModel.getFilms();
-
-    // отсюда должно возвращаться вот такое
     const filters = {
       all: filter[FilterType.ALL](films).length,
       watchlist: filter[FilterType.WATCHLIST](films).length,

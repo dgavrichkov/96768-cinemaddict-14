@@ -34,9 +34,7 @@ export default class Filmboard {
     this._sortComp = null;
     this._showMoreComp = null;
 
-    // this._regularFilmsList = new FilmsListView(false, 'list');
     this._regularFilmsList = null;
-    // this._regularFilmsListContainer = getFilmContainer(this._regularFilmsList);
     this._regularFilmsListEmpty = null;
 
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
@@ -351,12 +349,10 @@ export default class Filmboard {
         break;
       case UpdateType.MINOR:
         this._clearRegularList();
-        // this._renderSort();
         this._renderRegularList();
         break;
       case UpdateType.MAJOR:
         this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true});
-        // this._renderSort();
         this._renderRegularList();
         break;
     }
