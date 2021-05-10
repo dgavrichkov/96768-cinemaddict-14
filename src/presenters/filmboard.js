@@ -367,6 +367,7 @@ export default class Filmboard {
       case UpdateType.MINOR:
         this._clearRegularList({resetAllLists: true});
         this._renderAllLists();
+        this._onFilmChange(data);
         break;
       case UpdateType.MAJOR:
         this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true});

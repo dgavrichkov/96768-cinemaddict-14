@@ -52,6 +52,7 @@ export const createFilmDetailsTemplate = (film) => {
     isWatched,
     isFavorite,
     stateNewCmtEmoji,
+    stateNewCmtText,
   } = film;
 
   const genreItemsList = genres.map((genre) => {
@@ -153,7 +154,7 @@ export const createFilmDetailsTemplate = (film) => {
               </div>
 
               <label class="film-details__comment-label">
-                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" value="${stateNewCmtText ? stateNewCmtText : ''}">${stateNewCmtText ? stateNewCmtText : ''}</textarea>
               </label>
 
               <div class="film-details__emoji-list">
