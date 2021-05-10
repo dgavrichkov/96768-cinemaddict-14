@@ -34,8 +34,10 @@ export default class Filmboard {
     this._sortComp = null;
     this._showMoreComp = null;
 
-    this._regularFilmsList = new FilmsListView(false, 'list');
-    this._regularFilmsListContainer = getFilmContainer(this._regularFilmsList);
+    // this._regularFilmsList = new FilmsListView(false, 'list');
+    this._regularFilmsList = null;
+    // this._regularFilmsListContainer = getFilmContainer(this._regularFilmsList);
+    this._regularFilmsListEmpty = null;
 
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
 
@@ -238,15 +240,28 @@ export default class Filmboard {
     this._openedPopup = null;
   }
   // рендер главного списка фильмов
-  _renderRegular() {
+  _renderRegularContainer() {
+    this._regularFilmsList = new FilmsListView(false, 'list');
     render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
   }
+  _renderRegularListEmpty() {
+    this._regularFilmsListEmpty = new FilmsListView(false, 'empty');
+    render(this._filmsComp, this._regularFilmsListEmpty, RenderPosition.AFTERBEGIN);
+  }
   // рендер карточек обычного списка и кнопки допоказа
-  _renderRegularCards() {
+  _renderRegularList() {
     const films = this._getFilms();
     const filmsCount = films.length;
 
+    if (filmsCount === 0) {
+      this._renderRegularListEmpty();
+      return;
+    } else if(this._regularFilmsListEmpty !== null) {
+      remove(this._regularFilmsListEmpty);
+    }
     const filmsGroup = films.slice(0, Math.min(filmsCount, this._renderedFilmsCount));
+
+    this._renderSort();
     this._renderFilms(filmsGroup);
 
     if(filmsCount > this._renderedFilmsCount) {
@@ -273,10 +288,13 @@ export default class Filmboard {
   // рендерит основной контейнер и списки фильмов
   _renderFilmBoard() {
     const films = this._getFilms();
-    this._renderSort();
     this._renderFilmsContainer();
-    this._renderRegular();
-    this._renderRegularCards();
+    if(films.length === 0) {
+      this._renderRegularListEmpty();
+      return;
+    }
+    this._renderRegularContainer();
+    this._renderRegularList();
     this._renderTopRated(films.sort(sortFilmsByRates));
     this._renderMostComment(films.sort(sortFilmsByComments));
   }
@@ -288,7 +306,7 @@ export default class Filmboard {
   }
   // рендер обычного списка. Массив фильмов для отрисовки мы получаем прямо из модели
   _renderFilms(films) {
-    films.forEach((film) => this._renderFilm(this._regularFilmsListContainer, film));
+    films.forEach((film) => this._renderFilm(getFilmContainer(this._regularFilmsList), film));
   }
 
   _renderShowMoreButton() {
@@ -333,13 +351,13 @@ export default class Filmboard {
         break;
       case UpdateType.MINOR:
         this._clearRegularList();
-        this._renderSort();
-        this._renderRegularCards();
+        // this._renderSort();
+        this._renderRegularList();
         break;
       case UpdateType.MAJOR:
         this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true});
-        this._renderSort();
-        this._renderRegularCards();
+        // this._renderSort();
+        this._renderRegularList();
         break;
     }
   }
@@ -353,8 +371,7 @@ export default class Filmboard {
     // - Очищаем список
     this._clearRegularList({resetRenderedFilmCount: true});
     // - Рендерим список заново
-    this._renderSort();
-    this._renderRegularCards();
+    this._renderRegularList();
   }
 
   // функция выполняется при обновлении карточки
