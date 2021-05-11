@@ -5,16 +5,24 @@ export const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-export const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
+export const keyCombo = (callback, ...keys) => {
+  const keyNames = [...keys];
+  let pressed = {};
 
-  if (index === -1) {
-    return items;
-  }
 
-  return [
-    ...items.slice(0, index),
-    update,
-    ...items.slice(index + 1),
-  ];
+  document.onkeydown = function(e) {
+    pressed[e.key] = true;
+    for(let i=0; i<keyNames.length; i++) { // проверить, все ли клавиши нажаты
+      if (!pressed[keyNames[i]]) {
+        return;
+      }
+    }
+    pressed = {};
+
+    callback();
+  };
+
+  document.onkeyup = function(e) {
+    delete pressed[e.key];
+  };
 };

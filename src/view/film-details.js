@@ -1,22 +1,27 @@
 import SmartView from './smart.js';
-import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat} from '../utils/film.js';
+import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat, createComment} from '../utils/film.js';
+import {keyCombo} from '../utils/common.js';
+import he from 'he';
+
 
 const createGenreItem = (genre) => {
   return `<span class="film-details__genre">${genre}</span>`;
 };
 
 const createCommentItem = (comment) => {
-  const {emoji, text, author, date} = comment;
-  return `<li class="film-details__comment">
+  const {id, emoji, text, author, date} = comment;
+  return `<li class="film-details__comment" data-cmt-id="${id}">
       <span class="film-details__comment-emoji">
         <img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">
       </span>
       <div>
-        <p class="film-details__comment-text">${text}</p>
+        <p class="film-details__comment-text">${he.encode(text)}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${formatCommentDate(date)}</span>
-          <button class="film-details__comment-delete">Delete</button>
+          <button
+            class="film-details__comment-delete"
+          >Delete</button>
         </p>
       </div>
     </li>
@@ -46,7 +51,8 @@ export const createFilmDetailsTemplate = (film) => {
     isWatchlist,
     isWatched,
     isFavorite,
-    pickedEmoji,
+    stateNewCmtEmoji,
+    stateNewCmtText,
   } = film;
 
   const genreItemsList = genres.map((genre) => {
@@ -57,7 +63,7 @@ export const createFilmDetailsTemplate = (film) => {
     return createCommentItem(comment);
   }).join('');
 
-  const newCommentImg = createNewCommentEmojiImg(pickedEmoji);
+  const newCommentImg = createNewCommentEmojiImg(stateNewCmtEmoji);
 
   return `<section class="film-details">
       <form class="film-details__inner" action="" method="get">
@@ -144,11 +150,11 @@ export const createFilmDetailsTemplate = (film) => {
 
             <div class="film-details__new-comment">
               <div class="film-details__add-emoji-label">
-                ${pickedEmoji ? newCommentImg : ''}
+                ${stateNewCmtEmoji ? newCommentImg : ''}
               </div>
 
               <label class="film-details__comment-label">
-                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" value="${stateNewCmtText ? stateNewCmtText : ''}">${stateNewCmtText ? he.encode(stateNewCmtText) : ''}</textarea>
               </label>
 
               <div class="film-details__emoji-list">
@@ -184,16 +190,33 @@ export default class FilmDetails extends SmartView {
   constructor(film) {
     super();
     this._state = FilmDetails.parseDataToState(film);
+
     this._clickCloseHandler = this._clickCloseHandler.bind(this);
     this._clickFavoriteHandler = this._clickFavoriteHandler.bind(this);
     this._clickWatchlistHandler = this._clickWatchlistHandler.bind(this);
     this._clickWatchedHandler = this._clickWatchedHandler.bind(this);
-    this._pickEmoji = this._pickEmoji.bind(this);
+    this._clickEmojiHandler = this._clickEmojiHandler.bind(this);
+    this._newCommentTextHandler = this._newCommentTextHandler.bind(this);
+    this._specialFormSubmitHandler = this._specialFormSubmitHandler.bind(this);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._setInnerHandlers();
   }
 
   getTemplate() {
     return createFilmDetailsTemplate(this._state);
+  }
+
+  _formSubmitHandler(e) {
+    e.preventDefault();
+    this._callback.formSubmit(FilmDetails.parseStateToData(this._state));
+  }
+
+  _clickEmojiHandler(e) {
+    e.preventDefault();
+    this.updateData({
+      stateNewCmtEmoji: e.target.value,
+      scrollPos: this.getElement().scrollTop,
+    });
   }
 
   _clickCloseHandler(e) {
@@ -214,23 +237,60 @@ export default class FilmDetails extends SmartView {
     this._callback.watchedClick();
   }
 
-  _pickEmoji(e) {
-    e.preventDefault();
-    this.updateData({
-      pickedEmoji: e.target.value,
-      scrollPos: this.getElement().scrollTop,
-    });
-  }
-
-  _setEmojiHandlers() {
+  // это только те обработчики, до которых нет дела презентеру. Их дело - просто обновить состояние.
+  _setInnerHandlers() {
     const emojies = this.getElement().querySelectorAll('.film-details__emoji-item');
     emojies.forEach((emoji) => {
-      emoji.addEventListener('click', this._pickEmoji);
+      emoji.addEventListener('click', this._clickEmojiHandler);
+    });
+
+    this._setCmtDelHandler();
+
+    this.getElement()
+      .querySelector('.film-details__comment-input').addEventListener('input', this._newCommentTextHandler);
+
+    keyCombo(this._specialFormSubmitHandler, 'Control', 'Enter');
+  }
+
+  _setCmtDelHandler() {
+    const delbtns = this.getElement().querySelectorAll('.film-details__comment-delete');
+    delbtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const cmtId = btn.closest('.film-details__comment').dataset.cmtId;
+        const newComments = this._state.comments.filter((cmt) => {
+          return cmt.id !== cmtId;
+        });
+
+        this.updateData({comments: newComments}, true);
+      });
     });
   }
 
-  _setInnerHandlers() {
-    this._setEmojiHandlers();
+  _specialFormSubmitHandler() {
+    if(this._state.stateNewCmtEmoji === null || this._state.stateNewCmtText === null) {
+      return;
+    }
+
+    const newComment = createComment(this._state.stateNewCmtEmoji, this._state.stateNewCmtText);
+
+    const newComments = this._state.comments.slice();
+    newComments.push(newComment);
+
+    this.updateData({comments: newComments}, true);
+
+    this._callback.formSubmit(FilmDetails.parseStateToData(this._state));
+  }
+
+  _newCommentTextHandler(e) {
+    e.preventDefault();
+    this.updateData({
+      stateNewCmtText: e.target.value,
+    }, true);
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector('form').addEventListener('submit', this._formSubmitHandler);
   }
 
   setClickCloseHandler(callback) {
@@ -256,21 +316,23 @@ export default class FilmDetails extends SmartView {
     watchedTrg.addEventListener('click', this._clickWatchedHandler);
   }
 
+  // устанавливает позицию скролла. Метод публичен, так как его вызывает презентер при перерисовке попапа
   setScrollPos() {
     if(this._state.scrollPos !== 0) {
       this.getElement().scrollTop = this._state.scrollPos;
     }
   }
-
+  // повторная установка обработчиков клика и позиции скролла. В общем, то, что нужно восстановить, когда перерисовывается попап
   restoreElement() {
     this._setInnerHandlers();
     this.setClickCloseHandler(this._callback.closeClick);
     this.setClickWatchedHandler(this._callback.watchedClick);
     this.setClickFavoriteHandler(this._callback.favoriteClick);
     this.setClickWatchlistHandler(this._callback.watchlistClick);
+    this.setFormSubmitHandler(this._callback.formSubmit);
     this.setScrollPos();
   }
-
+  // Переданные данные превращает в состояние. Вызывается всякий раз при создании экземпляра.
   static parseDataToState(film) {
     return Object.assign(
       {},
@@ -279,16 +341,23 @@ export default class FilmDetails extends SmartView {
         isFavorite: film.favorite,
         isWatched: film.alreadyWatched,
         isWatchlist: film.watchlist,
+        stateNewCmtText: null,
+        stateNewCmtEmoji: null,
       },
     );
   }
-
+  // метод, который пока еще не пригодился. должен вызываться тогда, когда вследствие изменения состояния нужно будет изменить данные. Результат вызова попадет в метод презентера, который будет вызывать изменение модели.
   static parseStateToData(state) {
+
+    //
+
     state = Object.assign({}, state);
 
     delete state.isFavorite;
     delete state.isWatched;
     delete state.isWatchlist;
+    delete state.stateNewCmtText;
+    delete state.stateNewCmtEmoji;
 
     return state;
   }

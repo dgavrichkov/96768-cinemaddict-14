@@ -82,6 +82,7 @@ const generateComment = (releaseDate) => {
   }
 
   const comment = {
+    id: nanoid(),
     emoji: MOCKSRC.EMOTIONS[getRandomInteger(0, MOCKSRC.EMOTIONS.length - 1)],
     text: MOCKSRC.COMMENT_TEXTS[getRandomInteger(0, MOCKSRC.COMMENT_TEXTS.length - 1)],
     author: MOCKSRC.COMMENT_AUTHOR[getRandomInteger(0, MOCKSRC.COMMENT_AUTHOR.length - 1)],
