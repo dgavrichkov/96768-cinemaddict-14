@@ -58,5 +58,13 @@ export default class Filter {
     }
 
     this._filterModel.setFilter(UpdateType.MAJOR, filterType);
+
+  }
+
+  setStatMenuActive() {
+    this._filterComp.setStatActive();
+  }
+  setStatMenuUnactive() {
+    this._filterComp.setStatUnactive();
   }
 }

@@ -20,6 +20,7 @@ import {
 } from '../utils/render.js';
 import { nanoid } from 'nanoid';
 import {SortType, UserAction, UpdateType} from '../const.js';
+import Sort from '../view/sort.js';
 
 const FILMS_COUNT_PER_STEP = 5;
 const EXTRA_LIST_COUNT = 2;
@@ -362,7 +363,6 @@ export default class Filmboard {
   _handleModelEvent(updateType, data) {
     switch (updateType) {
       case UpdateType.PATCH:
-        this._onFilmChange(data);
         break;
       case UpdateType.MINOR:
         this._clearRegularList({resetAllLists: true});
@@ -433,5 +433,24 @@ export default class Filmboard {
       remove(this._topRatedFilmsList);
       remove(this._mostCommentFilmsList);
     }
+  }
+
+  hideFilmBoard() {
+    this._resetSortType();
+    this._regularFilmsList.hide();
+    this._topRatedFilmsList.hide();
+    this._mostCommentFilmsList.hide();
+  }
+
+  showFilmBoard() {
+    this._regularFilmsList.show();
+    this._topRatedFilmsList.show();
+    this._mostCommentFilmsList.show();
+  }
+
+  _resetSortType() {
+    this._currentSortType = SortType.DEFAULT;
+    this._clearRegularList({resetRenderedFilmCount: true});
+    this._renderRegularList();
   }
 }

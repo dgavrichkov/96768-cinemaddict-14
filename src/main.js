@@ -31,8 +31,38 @@ render(siteHeaderEl, new ProfileView(userStat), RenderPosition.BEFOREEND);
 filterPresenter.init();
 boardPresenter.init();
 
-render(siteMainEl, new UserStatView(userStat), RenderPosition.BEFOREEND);
+const userStatComp = new UserStatView(userStat);
+render(siteMainEl, userStatComp, RenderPosition.BEFOREEND);
+userStatComp.hide();
 
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
 
 render(footerStat, new SiteStatView(films), RenderPosition.BEFOREEND);
+
+const screenSwitch = (target) => {
+
+  if(target.classList.contains('main-navigation__additional')) {
+    if(userStatComp.getElement().classList.contains('visually-hidden')) {
+      boardPresenter.hideFilmBoard();
+      userStatComp.show();
+      filterPresenter.setStatMenuActive();
+    } else {
+      userStatComp.hide();
+      boardPresenter.showFilmBoard();
+      filterPresenter.setStatMenuUnactive();
+    }
+  } else if(target.classList.contains('main-navigation__item')){
+    userStatComp.hide();
+    target.classList.remove('main-navigation__additional--active');
+    target.classList.add('main-navigation__item--active');
+    boardPresenter.showFilmBoard();
+  }
+};
+
+const handleScreenSwitchClick = (e) => {
+  e.preventDefault();
+  const target = e.target;
+  screenSwitch(target);
+};
+
+document.addEventListener('click', handleScreenSwitchClick);
