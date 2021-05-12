@@ -53,7 +53,7 @@ const screenSwitch = (target) => {
     }
   } else if(target.classList.contains('main-navigation__item')){
     userStatComp.hide();
-    target.classList.remove('main-navigation__additional--active');
+    filterPresenter.setStatMenuUnactive();
     target.classList.add('main-navigation__item--active');
     boardPresenter.showFilmBoard();
   }
