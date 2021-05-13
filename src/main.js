@@ -4,7 +4,7 @@ import UserStatView from './view/user-statistics.js';
 import FilmBoard from './presenters/filmboard.js';
 import Filter from './presenters/filter.js';
 import {generateFilm} from './mock/film.js';
-import {generateUserstat} from './mock/userStat.js';
+import {generateUserstat} from './utils/statistic.js';
 import {render, RenderPosition} from './utils/render.js';
 import {userFilms} from './utils/film.js';
 import FilmsModel from './model/movies.js';
@@ -31,7 +31,7 @@ render(siteHeaderEl, new ProfileView(userStat), RenderPosition.BEFOREEND);
 filterPresenter.init();
 boardPresenter.init();
 
-const userStatComp = new UserStatView(userStat);
+const userStatComp = new UserStatView(modelFilms.getFilms());
 render(siteMainEl, userStatComp, RenderPosition.BEFOREEND);
 userStatComp.hide();
 

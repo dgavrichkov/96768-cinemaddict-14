@@ -1,6 +1,6 @@
-import {GENRES} from './mock-const';
+import {GENRES} from '../mock/mock-const';
 
-const getUserRank = (films) => {
+export const getUserRank = (films) => {
   if(films.length > 20) {
     return 'Movie Buff';
   }
@@ -12,7 +12,7 @@ const getUserRank = (films) => {
   }
 };
 
-const getTotalDuration = (films) => {
+export const getTotalDuration = (films) => {
   let minutes = 0;
   films.forEach((film) => {
     minutes = minutes + +film.runtime;
@@ -20,7 +20,7 @@ const getTotalDuration = (films) => {
   return minutes;
 };
 
-const getTopGenre = (films) => {
+export const getTopGenre = (films) => {
   const concat = [];
   films.forEach((film) => {
     concat.push(...film.genres);
