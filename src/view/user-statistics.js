@@ -2,11 +2,79 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import AbstractView from './abstract.js';
-import {generateUserstat} from '../utils/statistic.js';
+import {generateUserstat, getCountGenres} from '../utils/statistic.js';
 
 const createDurationTemplate = (minutes) => {
   return `${Math.floor(minutes/60)}<span class="statistic__item-description">h</span> ${minutes%60}<span class="statistic__item-description">m</span>
   `;
+};
+
+
+const renderGenreStatistics = (genreCtx, films) => {
+  const BAR_HEIGHT = 50;
+  const countGenres = getCountGenres(films);
+  const sortedGenresCount = Object.fromEntries(Object.entries(countGenres).sort((a, b) => {
+    return b[1] - a[1];
+  }));
+  const statGenres = [...Object.keys(sortedGenresCount)];
+  const statValues = [...Object.values(sortedGenresCount)];
+  genreCtx.height = BAR_HEIGHT * statGenres.length;
+  return new Chart(genreCtx, {
+    plugins: [ChartDataLabels],
+    type: 'horizontalBar',
+    data: {
+      labels: statGenres,
+      datasets: [{
+        data: statValues,
+        backgroundColor: '#ffe800',
+        hoverBackgroundColor: '#ffe800',
+        anchor: 'start',
+      }],
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          font: {
+            size: 20,
+          },
+          color: '#ffffff',
+          anchor: 'start',
+          align: 'start',
+          offset: 40,
+        },
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            fontColor: '#ffffff',
+            padding: 100,
+            fontSize: 20,
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false,
+          },
+          barThickness: 24,
+        }],
+        xAxes: [{
+          ticks: {
+            display: false,
+            beginAtZero: true,
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false,
+          },
+        }],
+      },
+      legend: {
+        display: false,
+      },
+      tooltips: {
+        enabled: false,
+      },
+    },
+  });
 };
 
 const createUserStatTemplate = (userStat) => {
@@ -63,7 +131,11 @@ const createUserStatTemplate = (userStat) => {
 export default class UserStat extends AbstractView {
   constructor(films) {
     super();
-    this._statData = generateUserstat(films);
+    this._films = films;
+    this._statData = generateUserstat(this._films);
+    this._genreChart = null;
+
+    this._setChart();
   }
 
   getTemplate() {
@@ -71,7 +143,12 @@ export default class UserStat extends AbstractView {
   }
 
   _setChart() {
+    if(this._genreChart !== null) {
+      this._genreChart = null;
+    }
 
+    const genreCtx = this.getElement().querySelector('.statistic__chart');
+    renderGenreStatistics(genreCtx, this._films);
   }
 
   _periodChangeHandler() {
