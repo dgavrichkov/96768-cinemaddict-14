@@ -1,9 +1,8 @@
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-import SmartView from './smart.js';
+import AbstractView from './abstract.js';
 import {generateUserstat} from '../utils/statistic.js';
-import {userFilms} from '../utils/film.js';
 
 const createDurationTemplate = (minutes) => {
   return `${Math.floor(minutes/60)}<span class="statistic__item-description">h</span> ${minutes%60}<span class="statistic__item-description">m</span>
@@ -61,10 +60,10 @@ const createUserStatTemplate = (userStat) => {
   `;
 };
 
-export default class UserStat extends SmartView {
+export default class UserStat extends AbstractView {
   constructor(films) {
     super();
-    this._statData = generateUserstat(userFilms(films));
+    this._statData = generateUserstat(films);
   }
 
   getTemplate() {

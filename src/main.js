@@ -5,7 +5,7 @@ import FilmBoard from './presenters/filmboard.js';
 import Filter from './presenters/filter.js';
 import {generateFilm} from './mock/film.js';
 import {generateUserstat} from './utils/statistic.js';
-import {render, RenderPosition} from './utils/render.js';
+import {render, RenderPosition, remove} from './utils/render.js';
 import {userFilms} from './utils/film.js';
 import FilmsModel from './model/movies.js';
 import FilterModel from './model/filter.js';
@@ -31,28 +31,35 @@ render(siteHeaderEl, new ProfileView(userStat), RenderPosition.BEFOREEND);
 filterPresenter.init();
 boardPresenter.init();
 
-const userStatComp = new UserStatView(modelFilms.getFilms());
-render(siteMainEl, userStatComp, RenderPosition.BEFOREEND);
-userStatComp.hide();
-
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
 
 render(footerStat, new SiteStatView(films), RenderPosition.BEFOREEND);
 
-const screenSwitch = (target) => {
 
+let userStatComp = null;
+let isStatOpen = false;
+
+const screenSwitch = (target) => {
   if(target.classList.contains('main-navigation__additional')) {
-    if(userStatComp.getElement().classList.contains('visually-hidden')) {
+    // клик по кнопке статы
+    if(!isStatOpen) {
+      // скрыть доску, показать стату
       boardPresenter.hideFilmBoard();
-      userStatComp.show();
+      userStatComp = new UserStatView(userFilms(modelFilms.getFilms()));
+      render(siteMainEl, userStatComp, RenderPosition.BEFOREEND);
       filterPresenter.setStatMenuActive();
+      isStatOpen = true;
     } else {
-      userStatComp.hide();
+      // убрать стату, показать доску
+      remove(userStatComp);
       boardPresenter.showFilmBoard();
       filterPresenter.setStatMenuUnactive();
+      isStatOpen = false;
     }
-  } else if(target.classList.contains('main-navigation__item')){
-    userStatComp.hide();
+  } else if(target.classList.contains('main-navigation__item') && isStatOpen){
+    // клик по фильтрам при включенной стате
+    isStatOpen = false;
+    remove(userStatComp);
     filterPresenter.setStatMenuUnactive();
     target.classList.add('main-navigation__item--active');
     boardPresenter.showFilmBoard();
