@@ -4,16 +4,14 @@ import UserStatView from './view/user-statistics.js';
 import FilmBoard from './presenters/filmboard.js';
 import Filter from './presenters/filter.js';
 import {generateFilm} from './mock/film.js';
-import {getUserRank} from './utils/statistic.js';
 import {render, RenderPosition, remove} from './utils/render.js';
-import {userFilms} from './utils/film.js';
+import {getUserFilms} from './utils/film.js';
 import FilmsModel from './model/movies.js';
 import FilterModel from './model/filter.js';
 
 const FILMS_COUNT = 22;
 
 const films = new Array(FILMS_COUNT).fill().map(generateFilm);
-const userRank = getUserRank(userFilms(films));
 
 const siteHeaderEl = document.querySelector('.header');
 const siteMainEl = document.querySelector('.main');
@@ -26,7 +24,18 @@ modelFilms.setFilms(films);
 const filterPresenter = new Filter(siteMainEl, modelFilter, modelFilms);
 const boardPresenter = new FilmBoard(siteMainEl, modelFilms, modelFilter);
 
-render(siteHeaderEl, new ProfileView(userRank), RenderPosition.BEFOREEND);
+let profileComp = null;
+
+const renderProfile = (films) => {
+  if(profileComp !== null) {
+    remove(profileComp);
+    profileComp = null;
+  }
+  profileComp = new ProfileView(films);
+  render(siteHeaderEl, profileComp, RenderPosition.BEFOREEND);
+};
+
+renderProfile(getUserFilms(modelFilms.getFilms()));
 
 filterPresenter.init();
 boardPresenter.init();
@@ -45,7 +54,7 @@ const screenSwitch = (target) => {
     if(!isStatOpen) {
       // скрыть доску, показать стату
       boardPresenter.hideFilmBoard();
-      userStatComp = new UserStatView(userFilms(modelFilms.getFilms()));
+      userStatComp = new UserStatView(getUserFilms(modelFilms.getFilms()));
       render(siteMainEl, userStatComp, RenderPosition.BEFOREEND);
       filterPresenter.setStatMenuActive();
       isStatOpen = true;
@@ -73,3 +82,9 @@ const handleScreenSwitchClick = (e) => {
 };
 
 document.addEventListener('click', handleScreenSwitchClick);
+
+const handleModelEvent = () => {
+  renderProfile(getUserFilms(modelFilms.getFilms()));
+};
+
+modelFilms.addObserver(handleModelEvent);

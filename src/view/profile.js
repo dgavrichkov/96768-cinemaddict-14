@@ -1,4 +1,5 @@
 import AbstractView from './abstract.js';
+import {getUserRank} from '../utils/statistic.js';
 
 const createProfileTemplate = (userStat) => {
   return `<section class="header__profile profile">
@@ -9,9 +10,9 @@ const createProfileTemplate = (userStat) => {
 };
 
 export default class Profile extends AbstractView {
-  constructor(statData) {
+  constructor(films) {
     super();
-    this._statData = statData;
+    this._statData = getUserRank(films);
   }
 
   getTemplate() {
