@@ -20,6 +20,7 @@ import {
 } from '../utils/render.js';
 import { nanoid } from 'nanoid';
 import {SortType, UserAction, UpdateType} from '../const.js';
+import dayjs from 'dayjs';
 
 const FILMS_COUNT_PER_STEP = 5;
 const EXTRA_LIST_COUNT = 2;
@@ -77,6 +78,7 @@ export default class Filmboard {
 
   _renderSort() {
     if(this._sortComp !== null) {
+      remove(this._sortComp);
       this._sortComp = null;
     }
 
@@ -130,6 +132,7 @@ export default class Filmboard {
           film,
           {
             alreadyWatched: !film.alreadyWatched,
+            watchingDate: dayjs(),
           },
         ),
       );
@@ -215,6 +218,7 @@ export default class Filmboard {
           film,
           {
             alreadyWatched: !film.alreadyWatched,
+            watchingDate: dayjs(),
             scrollPos: popupComponent.getElement().scrollTop,
           },
         ),
@@ -255,12 +259,19 @@ export default class Filmboard {
     document.body.classList.remove('hide-overflow');
     this._openedPopup = null;
   }
-  // рендер главного списка фильмов
+  // рендер контейнера главного списка фильмов
   _renderRegularContainer() {
+    if(this._regularFilmsList !== null) {
+      remove(this._regularFilmsList);
+    }
     this._regularFilmsList = new FilmsListView(false, 'list');
     render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
   }
+  // рендер главного списка фильмов
   _renderRegularListEmpty() {
+    if(this._regularFilmsListEmpty !== null) {
+      remove(this._regularFilmsListEmpty);
+    }
     this._regularFilmsListEmpty = new FilmsListView(false, 'empty');
     render(this._filmsComp, this._regularFilmsListEmpty, RenderPosition.AFTERBEGIN);
   }
@@ -274,9 +285,10 @@ export default class Filmboard {
       return;
     } else if(this._regularFilmsListEmpty !== null) {
       remove(this._regularFilmsListEmpty);
+      this._renderRegularContainer();
     }
-    const filmsGroup = films.slice(0, Math.min(filmsCount, this._renderedFilmsCount));
 
+    const filmsGroup = films.slice(0, Math.min(filmsCount, this._renderedFilmsCount));
     this._renderSort();
     this._renderFilms(filmsGroup);
 
@@ -285,33 +297,33 @@ export default class Filmboard {
     }
   }
   // рендер экстра-списка - рейтинговые
-  _renderTopRated(films) {
+  _renderTopRated() {
+    if(this._topRatedFilmsList !== null) {
+      remove(this._topRatedFilmsList);
+    }
+    const films = this._filmsModel.getFilms().sort(sortFilmsByRates);
     this._topRatedFilmsList = new FilmsListView(true, 'top-rated');
     const topRatedFilmsListContainer = getFilmContainer(this._topRatedFilmsList);
-
     render(this._filmsComp, this._topRatedFilmsList, RenderPosition.BEFOREEND);
-
     this._renderFilmsSlice(films, topRatedFilmsListContainer, 0, Math.min(films.length, EXTRA_LIST_COUNT));
   }
   // рендер экстра-списка - комментируемые
-  _renderMostComment(films) {
+  _renderMostComment() {
+    if(this.__mostCommentFilmsList !== null) {
+      remove(this._mostCommentFilmsList);
+    }
+    const films = this._filmsModel.getFilms().sort(sortFilmsByComments);
     this._mostCommentFilmsList = new FilmsListView(true, 'most-commented');
     const mostCommentFilmsListContainer = getFilmContainer(this._mostCommentFilmsList);
     render(this._filmsComp, this._mostCommentFilmsList, RenderPosition.BEFOREEND);
-
     this._renderFilmsSlice(films, mostCommentFilmsListContainer, 0, Math.min(films.length, EXTRA_LIST_COUNT));
   }
   // рендерит списки фильмов.
   _renderAllLists() {
-    const films = this._getFilms();
-    if(films.length === 0) {
-      this._renderRegularListEmpty();
-      return;
-    }
     this._renderRegularContainer();
     this._renderRegularList();
-    this._renderTopRated(films.sort(sortFilmsByRates));
-    this._renderMostComment(films.sort(sortFilmsByComments));
+    this._renderTopRated();
+    this._renderMostComment();
   }
   // универсальный метод рендеринга пачки фильмов. Он останется для использования в экстра-списках.
   _renderFilmsSlice(list, container, from, to) {
@@ -362,16 +374,15 @@ export default class Filmboard {
   _handleModelEvent(updateType, data) {
     switch (updateType) {
       case UpdateType.PATCH:
-        this._onFilmChange(data);
         break;
       case UpdateType.MINOR:
-        this._clearRegularList({resetAllLists: true});
+        this._clearBoard({resetAllLists: true});
         this._renderAllLists();
         this._onFilmChange(data);
         break;
       case UpdateType.MAJOR:
-        this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true});
-        this._renderRegularList();
+        this._clearBoard({resetRenderedFilmCount: true, resetSortType: true, resetAllLists: true});
+        this._renderAllLists();
         break;
     }
   }
@@ -381,8 +392,8 @@ export default class Filmboard {
       return;
     }
     this._currentSortType = sortType;
-    this._clearRegularList({resetRenderedFilmCount: true});
-    this._renderRegularList();
+    this._clearBoard({resetRenderedFilmCount: true, resetAllLists: true});
+    this._renderAllLists();
   }
 
   // функция выполняется при обновлении карточки
@@ -400,7 +411,7 @@ export default class Filmboard {
     }
   }
 
-  _clearRegularList({resetRenderedFilmCount = false, resetSortType = false, resetAllLists = false} = {}) {
+  _clearBoard({resetRenderedFilmCount = false, resetSortType = false, resetAllLists = false} = {}) {
     // здесь нам нужны только карточки из основного списка. Так как у них нет презентеров, получим их через массив сохранненных карточек.
     const regularListCards = this._prevFilmCards.filter((card) => {
       return card.getElement().closest('[data-list-id]').dataset.listId === 'list';
@@ -419,8 +430,6 @@ export default class Filmboard {
     if(resetRenderedFilmCount) {
       this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
     } else {
-      // На случай, если перерисовка доски вызвана
-      // уменьшением количества карточек (удаление)
       this._renderedFilmsCount = Math.min(filmCount, this._renderedFilmsCount);
     }
 
@@ -429,9 +438,26 @@ export default class Filmboard {
     }
 
     if(resetAllLists) {
+      if(this._regularFilmsListEmpty !== null) {
+        remove(this._regularFilmsListEmpty);
+      }
       remove(this._regularFilmsList);
       remove(this._topRatedFilmsList);
       remove(this._mostCommentFilmsList);
     }
+  }
+
+  hideFilmBoard() {
+    this._clearBoard({resetSortType: true, resetRenderedFilmCount: true, resetAllLists: true});
+  }
+
+  showFilmBoard() {
+    this._renderAllLists();
+  }
+
+  _resetSortType() {
+    this._currentSortType = SortType.DEFAULT;
+    this._clearBoard({resetRenderedFilmCount: true, resetAllLists: true});
+    this._renderRegularList();
   }
 }

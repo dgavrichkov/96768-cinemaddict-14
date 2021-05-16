@@ -34,6 +34,8 @@
   },
   "homepage": "https://github.com/dgavrichkov/96768-cinemaddict-14#readme",
   "dependencies": {
+    "chart.js": "^2.9.4",
+    "chartjs-plugin-datalabels": "^0.7.0",
     "dayjs": "1.9.7",
     "he": "^1.2.0"
   }
