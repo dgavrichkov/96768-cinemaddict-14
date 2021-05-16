@@ -78,6 +78,7 @@ export default class Filmboard {
 
   _renderSort() {
     if(this._sortComp !== null) {
+      remove(this._sortComp);
       this._sortComp = null;
     }
 
@@ -297,6 +298,9 @@ export default class Filmboard {
   }
   // рендер экстра-списка - рейтинговые
   _renderTopRated() {
+    if(this._topRatedFilmsList !== null) {
+      remove(this._topRatedFilmsList);
+    }
     const films = this._filmsModel.getFilms().sort(sortFilmsByRates);
     this._topRatedFilmsList = new FilmsListView(true, 'top-rated');
     const topRatedFilmsListContainer = getFilmContainer(this._topRatedFilmsList);
@@ -305,6 +309,9 @@ export default class Filmboard {
   }
   // рендер экстра-списка - комментируемые
   _renderMostComment() {
+    if(this.__mostCommentFilmsList !== null) {
+      remove(this._mostCommentFilmsList);
+    }
     const films = this._filmsModel.getFilms().sort(sortFilmsByComments);
     this._mostCommentFilmsList = new FilmsListView(true, 'most-commented');
     const mostCommentFilmsListContainer = getFilmContainer(this._mostCommentFilmsList);
@@ -369,12 +376,12 @@ export default class Filmboard {
       case UpdateType.PATCH:
         break;
       case UpdateType.MINOR:
-        this._clearRegularList({resetAllLists: true});
+        this._clearBoard({resetAllLists: true});
         this._renderAllLists();
         this._onFilmChange(data);
         break;
       case UpdateType.MAJOR:
-        this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true, resetAllLists: true});
+        this._clearBoard({resetRenderedFilmCount: true, resetSortType: true, resetAllLists: true});
         this._renderAllLists();
         break;
     }
@@ -385,8 +392,8 @@ export default class Filmboard {
       return;
     }
     this._currentSortType = sortType;
-    this._clearRegularList({resetRenderedFilmCount: true});
-    this._renderRegularList();
+    this._clearBoard({resetRenderedFilmCount: true, resetAllLists: true});
+    this._renderAllLists();
   }
 
   // функция выполняется при обновлении карточки
@@ -404,7 +411,7 @@ export default class Filmboard {
     }
   }
 
-  _clearRegularList({resetRenderedFilmCount = false, resetSortType = false, resetAllLists = false} = {}) {
+  _clearBoard({resetRenderedFilmCount = false, resetSortType = false, resetAllLists = false} = {}) {
     // здесь нам нужны только карточки из основного списка. Так как у них нет презентеров, получим их через массив сохранненных карточек.
     const regularListCards = this._prevFilmCards.filter((card) => {
       return card.getElement().closest('[data-list-id]').dataset.listId === 'list';
@@ -423,8 +430,6 @@ export default class Filmboard {
     if(resetRenderedFilmCount) {
       this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
     } else {
-      // На случай, если перерисовка доски вызвана
-      // уменьшением количества карточек (удаление)
       this._renderedFilmsCount = Math.min(filmCount, this._renderedFilmsCount);
     }
 
@@ -433,6 +438,9 @@ export default class Filmboard {
     }
 
     if(resetAllLists) {
+      if(this._regularFilmsListEmpty !== null) {
+        remove(this._regularFilmsListEmpty);
+      }
       remove(this._regularFilmsList);
       remove(this._topRatedFilmsList);
       remove(this._mostCommentFilmsList);
@@ -440,21 +448,16 @@ export default class Filmboard {
   }
 
   hideFilmBoard() {
-    this._resetSortType();
-    this._regularFilmsList.hide();
-    this._topRatedFilmsList.hide();
-    this._mostCommentFilmsList.hide();
+    this._clearBoard({resetSortType: true, resetRenderedFilmCount: true, resetAllLists: true});
   }
 
   showFilmBoard() {
-    this._regularFilmsList.show();
-    this._topRatedFilmsList.show();
-    this._mostCommentFilmsList.show();
+    this._renderAllLists();
   }
 
   _resetSortType() {
     this._currentSortType = SortType.DEFAULT;
-    this._clearRegularList({resetRenderedFilmCount: true});
+    this._clearBoard({resetRenderedFilmCount: true, resetAllLists: true});
     this._renderRegularList();
   }
 }

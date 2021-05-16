@@ -18,6 +18,7 @@ export const getUserRank = (films) => {
   if(films.length > 1) {
     return 'Novice';
   }
+  return '';
 };
 
 export const getTotalDuration = (films) => {
