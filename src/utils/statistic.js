@@ -1,4 +1,12 @@
-// export const
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import dayOfYear from 'dayjs/plugin/dayOfYear';
+import {StatisticPeriod} from '../const.js';
+
+dayjs.extend(dayOfYear);
+dayjs.extend(isBetween);
+dayjs.extend(isSameOrBefore);
 
 export const getUserRank = (films) => {
   if(films.length > 20) {
@@ -27,19 +35,52 @@ export const getTopGenre = (films) => {
   return topGenre;
 };
 
-export const generateUserstat = (films) => {
+export const getUserstat = (films) => {
   return {
-    userRank: getUserRank(films),
-    totalDuration: getTotalDuration(films),
-    topGenre: getTopGenre(films),
+    totalDuration: films.length ? getTotalDuration(films) : 0,
+    topGenre: films.length ? getTopGenre(films) : '',
     historyCount: films.length,
   };
 };
 
-export const getFilmsOnPeriod = (period) => {
-  // получить разницу между сегодняшним днем и указанным периодом (день, неделя и тд) чтобы определить одну точку, текущий момент будет второй точкой
-  // пройти по массиву фильмов и выяснить, которые из них попадают в диапазон между точками
-  // вернуть этот массив, чтобы на его основе построить гурафик
+export const periodDateValues = {
+  [StatisticPeriod.TODAY]: 1,
+  [StatisticPeriod.WEEK]: 6,
+  [StatisticPeriod.MONTH]: 30,
+  [StatisticPeriod.YEAR]: 365,
+
+};
+
+export const getFilmsOnPeriod = (films, period) => {
+
+  const currentDate = dayjs().toDate();
+  let periodDate = null;
+  switch(period) {
+    case StatisticPeriod.ALL:
+      break;
+    case StatisticPeriod.TODAY:
+      periodDate = dayjs().subtract(1, 'day').toDate();
+      break;
+    case StatisticPeriod.WEEK:
+      periodDate = dayjs().subtract(1, 'week').toDate();
+      break;
+    case StatisticPeriod.MONTH:
+      periodDate = dayjs().subtract(1, 'month').toDate();
+      break;
+    case StatisticPeriod.YEAR:
+      periodDate = dayjs().subtract(1, 'year').toDate();
+      break;
+  }
+  if(!periodDate) {
+    return films;
+  }
+  const chosen = films.filter((film) => {
+    return dayjs(film.watchingDate.toDate()).isSame(periodDate) ||
+      dayjs(film.watchingDate.toDate()).isBetween(periodDate, currentDate) ||
+      dayjs(film.watchingDate.toDate()).isSame(currentDate);
+  });
+  return chosen;
+
 };
 
 export const getViewedFilms = (films) => {

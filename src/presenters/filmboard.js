@@ -20,7 +20,7 @@ import {
 } from '../utils/render.js';
 import { nanoid } from 'nanoid';
 import {SortType, UserAction, UpdateType} from '../const.js';
-import Sort from '../view/sort.js';
+import dayjs from 'dayjs';
 
 const FILMS_COUNT_PER_STEP = 5;
 const EXTRA_LIST_COUNT = 2;
@@ -131,6 +131,7 @@ export default class Filmboard {
           film,
           {
             alreadyWatched: !film.alreadyWatched,
+            watchingDate: dayjs(),
           },
         ),
       );
@@ -216,6 +217,7 @@ export default class Filmboard {
           film,
           {
             alreadyWatched: !film.alreadyWatched,
+            watchingDate: dayjs(),
             scrollPos: popupComponent.getElement().scrollTop,
           },
         ),

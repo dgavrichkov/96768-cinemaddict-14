@@ -101,20 +101,28 @@ const generateFilmComments = (releaseDate) => {
   return comments;
 };
 
+const randDay = (month) => {
+  if(!(month % 2)) {
+    return(getRandomInteger(1, 31));
+  }
+  if(month === 2) {
+    return getRandomInteger(1, 28);
+  }
+  return getRandomInteger(1, 30);
+};
+
 const generateFilmReleaseDate = () => {
-  const randYear = getRandomInteger(1960, 2021);
-  const randMonth = getRandomInteger(1, 12);
-  const randDay = (randMonth) => {
-    if(!(randMonth % 2)) {
-      return(getRandomInteger(1, 31));
-    }
-    if(randMonth === 2) {
-      return getRandomInteger(1, 28);
-    }
-    return getRandomInteger(1, 30);
-  };
-  const release = dayjs().year(randYear).month(randMonth).date(randDay());
-  return release;
+  const releaseYear = getRandomInteger(1960, 2021);
+  const releaseMonth = getRandomInteger(1, 12);
+  const releaseDay = randDay(releaseMonth);
+  return dayjs().year(releaseYear).month(releaseMonth).date(releaseDay);
+};
+
+const generateFilmWatchingDate = () => {
+  const watchingYear = getRandomInteger(2019, 2021);
+  const watchingMonth = getRandomInteger(1, 12);
+  const watchingDay = randDay(watchingMonth);
+  return dayjs().year(watchingYear).month(watchingMonth).date(watchingDay);
 };
 
 const generateFilmAgeRate = () => {
@@ -170,7 +178,7 @@ export const generateFilm = () => {
   const alreadyWatched = Boolean(getRandomInteger(0, 1));
   let watchingDate = null;
   if(alreadyWatched === true) {
-    watchingDate = dayjs();
+    watchingDate = generateFilmWatchingDate();
   }
   return {
     id: nanoid(),
