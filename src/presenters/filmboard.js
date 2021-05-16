@@ -258,12 +258,19 @@ export default class Filmboard {
     document.body.classList.remove('hide-overflow');
     this._openedPopup = null;
   }
-  // рендер главного списка фильмов
+  // рендер контейнера главного списка фильмов
   _renderRegularContainer() {
+    if(this._regularFilmsList !== null) {
+      remove(this._regularFilmsList);
+    }
     this._regularFilmsList = new FilmsListView(false, 'list');
     render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
   }
+  // рендер главного списка фильмов
   _renderRegularListEmpty() {
+    if(this._regularFilmsListEmpty !== null) {
+      remove(this._regularFilmsListEmpty);
+    }
     this._regularFilmsListEmpty = new FilmsListView(false, 'empty');
     render(this._filmsComp, this._regularFilmsListEmpty, RenderPosition.AFTERBEGIN);
   }
@@ -277,9 +284,10 @@ export default class Filmboard {
       return;
     } else if(this._regularFilmsListEmpty !== null) {
       remove(this._regularFilmsListEmpty);
+      this._renderRegularContainer();
     }
-    const filmsGroup = films.slice(0, Math.min(filmsCount, this._renderedFilmsCount));
 
+    const filmsGroup = films.slice(0, Math.min(filmsCount, this._renderedFilmsCount));
     this._renderSort();
     this._renderFilms(filmsGroup);
 
@@ -288,33 +296,27 @@ export default class Filmboard {
     }
   }
   // рендер экстра-списка - рейтинговые
-  _renderTopRated(films) {
+  _renderTopRated() {
+    const films = this._filmsModel.getFilms().sort(sortFilmsByRates);
     this._topRatedFilmsList = new FilmsListView(true, 'top-rated');
     const topRatedFilmsListContainer = getFilmContainer(this._topRatedFilmsList);
-
     render(this._filmsComp, this._topRatedFilmsList, RenderPosition.BEFOREEND);
-
     this._renderFilmsSlice(films, topRatedFilmsListContainer, 0, Math.min(films.length, EXTRA_LIST_COUNT));
   }
   // рендер экстра-списка - комментируемые
-  _renderMostComment(films) {
+  _renderMostComment() {
+    const films = this._filmsModel.getFilms().sort(sortFilmsByComments);
     this._mostCommentFilmsList = new FilmsListView(true, 'most-commented');
     const mostCommentFilmsListContainer = getFilmContainer(this._mostCommentFilmsList);
     render(this._filmsComp, this._mostCommentFilmsList, RenderPosition.BEFOREEND);
-
     this._renderFilmsSlice(films, mostCommentFilmsListContainer, 0, Math.min(films.length, EXTRA_LIST_COUNT));
   }
   // рендерит списки фильмов.
   _renderAllLists() {
-    const films = this._getFilms();
-    if(films.length === 0) {
-      this._renderRegularListEmpty();
-      return;
-    }
     this._renderRegularContainer();
     this._renderRegularList();
-    this._renderTopRated(films.sort(sortFilmsByRates));
-    this._renderMostComment(films.sort(sortFilmsByComments));
+    this._renderTopRated();
+    this._renderMostComment();
   }
   // универсальный метод рендеринга пачки фильмов. Он останется для использования в экстра-списках.
   _renderFilmsSlice(list, container, from, to) {
@@ -372,8 +374,8 @@ export default class Filmboard {
         this._onFilmChange(data);
         break;
       case UpdateType.MAJOR:
-        this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true});
-        this._renderRegularList();
+        this._clearRegularList({resetRenderedFilmCount: true, resetSortType: true, resetAllLists: true});
+        this._renderAllLists();
         break;
     }
   }
