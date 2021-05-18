@@ -301,7 +301,7 @@ export default class Filmboard {
     if(this._topRatedFilmsList !== null) {
       remove(this._topRatedFilmsList);
     }
-    const films = this._filmsModel.getFilms().sort(sortFilmsByRates);
+    const films = this._filmsModel.getFilms().slice().sort(sortFilmsByRates);
     this._topRatedFilmsList = new FilmsListView(true, 'top-rated');
     const topRatedFilmsListContainer = getFilmContainer(this._topRatedFilmsList);
     render(this._filmsComp, this._topRatedFilmsList, RenderPosition.BEFOREEND);
@@ -312,7 +312,7 @@ export default class Filmboard {
     if(this.__mostCommentFilmsList !== null) {
       remove(this._mostCommentFilmsList);
     }
-    const films = this._filmsModel.getFilms().sort(sortFilmsByComments);
+    const films = this._filmsModel.getFilms().slice().sort(sortFilmsByComments);
     this._mostCommentFilmsList = new FilmsListView(true, 'most-commented');
     const mostCommentFilmsListContainer = getFilmContainer(this._mostCommentFilmsList);
     render(this._filmsComp, this._mostCommentFilmsList, RenderPosition.BEFOREEND);
@@ -376,9 +376,9 @@ export default class Filmboard {
       case UpdateType.PATCH:
         break;
       case UpdateType.MINOR:
+        this._onFilmChange(data);
         this._clearBoard({resetAllLists: true});
         this._renderAllLists();
-        this._onFilmChange(data);
         break;
       case UpdateType.MAJOR:
         this._clearBoard({resetRenderedFilmCount: true, resetSortType: true, resetAllLists: true});

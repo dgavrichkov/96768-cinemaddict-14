@@ -20,8 +20,8 @@ const renderGenreStatistics = (genreCtx, state) => {
   const sortedGenresCount = Object.fromEntries(Object.entries(countGenres).sort((a, b) => {
     return b[1] - a[1];
   }));
-  const statGenres = [...Object.keys(sortedGenresCount)];
-  const statValues = [...Object.values(sortedGenresCount)];
+  const statGenres = Object.keys(sortedGenresCount);
+  const statValues = Object.values(sortedGenresCount);
   genreCtx.height = BAR_HEIGHT * statGenres.length;
   return new Chart(genreCtx, {
     plugins: [ChartDataLabels],
