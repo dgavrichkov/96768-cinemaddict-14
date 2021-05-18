@@ -11,13 +11,11 @@ export default class Smart extends AbstractView {
     if (!update) {
       return;
     }
-
     this._state = Object.assign(
       {},
       this._state,
       update,
     );
-
     if (justDataUpdating) {
       return;
     }
@@ -33,7 +31,6 @@ export default class Smart extends AbstractView {
     const newElement = this.getElement();
 
     parent.replaceChild(newElement, prevElement);
-
     this.restoreElement();
   }
 

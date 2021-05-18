@@ -36,7 +36,7 @@ export const defindGenreSign = (list) => {
   return (list.length > 1) ? 'Genres' : 'Genre';
 };
 
-export const userFilms = (films) => {
+export const getUserFilms = (films) => {
   return films.filter((film) => film.alreadyWatched === true);
 };
 
