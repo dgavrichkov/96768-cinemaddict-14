@@ -17,7 +17,6 @@ export default class Filter {
 
     this._filmsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
-
   }
 
   init() {
@@ -64,7 +63,12 @@ export default class Filter {
   setStatMenuActive() {
     this._filterComp.setStatActive();
   }
+
   setStatMenuUnactive() {
     this._filterComp.setStatUnactive();
+  }
+
+  getFilterElement() {
+    return this._filterComp.getElement();
   }
 }

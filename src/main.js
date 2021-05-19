@@ -8,6 +8,7 @@ import {render, RenderPosition, remove} from './utils/render.js';
 import {getUserFilms} from './utils/film.js';
 import FilmsModel from './model/movies.js';
 import FilterModel from './model/filter.js';
+import { filter } from './utils/filter.js';
 
 const FILMS_COUNT = 22;
 
@@ -48,9 +49,12 @@ render(footerStat, new SiteStatView(films), RenderPosition.BEFOREEND);
 let userStatComp = null;
 let isStatOpen = false;
 
-const screenSwitch = (target) => {
-  if(target.classList.contains('main-navigation__additional')) {
-    // клик по кнопке статы
+const setScreenSwitchHandler = () => {
+  const menuElement = filterPresenter.getFilterElement();
+  const statBtn = menuElement.querySelector('.main-navigation__additional');
+  const filterBtns = menuElement.querySelectorAll('.main-navigation__item');
+  statBtn.addEventListener('click', (e) => {
+    e.preventDefault();
     if(!isStatOpen) {
       // скрыть доску, показать стату
       boardPresenter.hideFilmBoard();
@@ -65,26 +69,23 @@ const screenSwitch = (target) => {
       filterPresenter.setStatMenuUnactive();
       isStatOpen = false;
     }
-  } else if(target.classList.contains('main-navigation__item') && isStatOpen){
-    // клик по фильтрам при включенной стате
-    isStatOpen = false;
-    remove(userStatComp);
-    filterPresenter.setStatMenuUnactive();
-    target.classList.add('main-navigation__item--active');
-    boardPresenter.showFilmBoard();
-  }
+  });
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      // клик по фильтрам при включенной стате
+      isStatOpen = false;
+      remove(userStatComp);
+      filterPresenter.setStatMenuUnactive();
+      boardPresenter.showFilmBoard();
+    });
+  });
 };
 
-const handleScreenSwitchClick = (e) => {
-  e.preventDefault();
-  const target = e.target;
-  screenSwitch(target);
-};
-
-document.addEventListener('click', handleScreenSwitchClick);
+setScreenSwitchHandler();
 
 const handleModelEvent = () => {
   renderProfile(getUserFilms(modelFilms.getFilms()));
 };
 
 modelFilms.addObserver(handleModelEvent);
+modelFilter.addObserver(setScreenSwitchHandler);
