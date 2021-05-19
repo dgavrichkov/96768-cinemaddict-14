@@ -8,11 +8,23 @@ import {render, RenderPosition, remove} from './utils/render.js';
 import {getUserFilms} from './utils/film.js';
 import FilmsModel from './model/movies.js';
 import FilterModel from './model/filter.js';
-import { filter } from './utils/filter.js';
+import Api from './api.js';
 
 const FILMS_COUNT = 22;
+const AUTHORIZATION = 'Basic rS56dwqGGG4sdasd53dfe';
+const END_POINT = 'https://14.ecmascript.pages.academy/cinemaddict';
+
 
 const films = new Array(FILMS_COUNT).fill().map(generateFilm);
+const api = new Api(END_POINT, AUTHORIZATION);
+
+api.getFilms().then((films) => {
+  console.log(films);
+  // Есть проблема: cтруктура объекта похожа, но некоторые ключи называются иначе,
+  // а ещё на сервере используется snake_case, а у нас camelCase.
+  // Можно, конечно, переписать часть нашего клиентского приложения, но зачем?
+  // Есть вариант получше - паттерн "Адаптер"
+});
 
 const siteHeaderEl = document.querySelector('.header');
 const siteMainEl = document.querySelector('.main');
@@ -71,7 +83,8 @@ const setScreenSwitchHandler = () => {
     }
   });
   filterBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
       // клик по фильтрам при включенной стате
       isStatOpen = false;
       remove(userStatComp);
@@ -88,4 +101,5 @@ const handleModelEvent = () => {
 };
 
 modelFilms.addObserver(handleModelEvent);
+modelFilms.addObserver(setScreenSwitchHandler);
 modelFilter.addObserver(setScreenSwitchHandler);
