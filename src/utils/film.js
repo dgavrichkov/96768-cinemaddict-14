@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import {COMMENT_AUTHOR} from '../mock/mock-const.js';
-import {getRandomInteger} from './common.js';
 import {nanoid} from 'nanoid';
 
 dayjs.extend(duration);
@@ -69,12 +67,12 @@ export const isPopupExist = () => {
   return popup !== null;
 };
 
-export const createComment = (emoji, text) => {
+export const createComment = (emoji, text, author) => {
   return {
     id: nanoid(),
     date: dayjs(),
     emoji: emoji,
     text: text,
-    author: COMMENT_AUTHOR[getRandomInteger(0, COMMENT_AUTHOR.length - 1)],
+    author: author,
   };
 };

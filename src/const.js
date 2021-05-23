@@ -20,6 +20,7 @@ export const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 export const StatisticPeriod = {
@@ -28,4 +29,12 @@ export const StatisticPeriod = {
   WEEK: 'week',
   MONTH: 'month',
   YEAR: 'year',
+};
+
+export const TitleTypes = {
+  EMPTY: 'empty',
+  MOST_COMMENT: 'most-commented',
+  TOP_RATED: 'top-rated',
+  LOADING: 'loading',
+  DEFAULT: 'list',
 };

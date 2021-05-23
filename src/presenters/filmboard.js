@@ -19,19 +19,24 @@ import {
   replace
 } from '../utils/render.js';
 import { nanoid } from 'nanoid';
-import {SortType, UserAction, UpdateType} from '../const.js';
+import {
+  SortType,
+  UserAction,
+  UpdateType,
+  TitleTypes
+} from '../const.js';
 import dayjs from 'dayjs';
 
 const FILMS_COUNT_PER_STEP = 5;
 const EXTRA_LIST_COUNT = 2;
 
 export default class Filmboard {
-  constructor(container, filmsModel, filterModel) {
+  constructor(container, filmsModel, filterModel, api) {
     this._mainEl = container;
     this._filmsModel = filmsModel;
     this._filterModel = filterModel;
     this._filmsComp = new FilmsView();
-
+    this._api = api;
     this._sortComp = null;
     this._showMoreComp = null;
 
@@ -39,6 +44,9 @@ export default class Filmboard {
     this._regularFilmsListEmpty = null;
     this._topRatedFilmsList = null;
     this._mostCommentFilmsList = null;
+
+    this._isLoading = true;
+    this._loadingListComp = null;
 
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
 
@@ -55,7 +63,6 @@ export default class Filmboard {
   init() {
     this._filmsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
-
 
     this._renderFilmsContainer();
     this._renderAllLists();
@@ -160,6 +167,17 @@ export default class Filmboard {
   _renderPopup(film) {
     const popupComponent = new FilmDetailsView(film);
 
+    // вот где-то тут мне надо делать запрос на сервер, чтобы получить комментарии
+    this._api.getFilmComments(film)
+      .then((comments) => {
+        comments.forEach((comment) => {
+          console.log(comment);
+        });
+      })
+      .catch(() => {
+        console.log('no comments');
+      });
+
     const clickOutPopup = (e) => {
       if (!e.target.closest('.film-details')) {
         this._popupOnClose(popupComponent);
@@ -243,6 +261,7 @@ export default class Filmboard {
     document.addEventListener('click', clickOutPopup);
     document.addEventListener('keydown', handleEscKeyDown);
 
+
     if(this._openedPopup === null) {
       render(this._mainEl, popupComponent, RenderPosition.AFTEREND);
       this._openedPopup = popupComponent;
@@ -264,21 +283,34 @@ export default class Filmboard {
     if(this._regularFilmsList !== null) {
       remove(this._regularFilmsList);
     }
-    this._regularFilmsList = new FilmsListView(false, 'list');
+    this._regularFilmsList = new FilmsListView(false, TitleTypes.DEFAULT);
     render(this._filmsComp, this._regularFilmsList, RenderPosition.BEFOREEND);
+  }
+  // рендер заглушки на время загрузки
+  _renderListLoading() {
+    if(this._loadingListComp !== null) {
+      remove(this._loadingListComp);
+    }
+    this._loadingListComp = new FilmsListView(false, TitleTypes.LOADING);
+    render(this._filmsComp, this._loadingListComp, RenderPosition.AFTERBEGIN);
   }
   // рендер главного списка фильмов
   _renderRegularListEmpty() {
     if(this._regularFilmsListEmpty !== null) {
       remove(this._regularFilmsListEmpty);
     }
-    this._regularFilmsListEmpty = new FilmsListView(false, 'empty');
+    this._regularFilmsListEmpty = new FilmsListView(false, TitleTypes.EMPTY);
     render(this._filmsComp, this._regularFilmsListEmpty, RenderPosition.AFTERBEGIN);
   }
   // рендер карточек обычного списка и кнопки допоказа
   _renderRegularList() {
     const films = this._getFilms();
     const filmsCount = films.length;
+
+    if(this._isLoading) {
+      this._renderListLoading();
+      return;
+    }
 
     if (filmsCount === 0) {
       this._renderRegularListEmpty();
@@ -302,7 +334,10 @@ export default class Filmboard {
       remove(this._topRatedFilmsList);
     }
     const films = this._filmsModel.getFilms().slice().sort(sortFilmsByRates);
-    this._topRatedFilmsList = new FilmsListView(true, 'top-rated');
+    if(films.length === 0) {
+      return;
+    }
+    this._topRatedFilmsList = new FilmsListView(true, TitleTypes.TOP_RATED);
     const topRatedFilmsListContainer = getFilmContainer(this._topRatedFilmsList);
     render(this._filmsComp, this._topRatedFilmsList, RenderPosition.BEFOREEND);
     this._renderFilmsSlice(films, topRatedFilmsListContainer, 0, Math.min(films.length, EXTRA_LIST_COUNT));
@@ -313,12 +348,15 @@ export default class Filmboard {
       remove(this._mostCommentFilmsList);
     }
     const films = this._filmsModel.getFilms().slice().sort(sortFilmsByComments);
-    this._mostCommentFilmsList = new FilmsListView(true, 'most-commented');
+    if(films.length === 0) {
+      return;
+    }
+    this._mostCommentFilmsList = new FilmsListView(true, TitleTypes.MOST_COMMENT);
     const mostCommentFilmsListContainer = getFilmContainer(this._mostCommentFilmsList);
     render(this._filmsComp, this._mostCommentFilmsList, RenderPosition.BEFOREEND);
     this._renderFilmsSlice(films, mostCommentFilmsListContainer, 0, Math.min(films.length, EXTRA_LIST_COUNT));
   }
-  // рендерит списки фильмов.
+  // рендерит доску - сортировка, главный список и экстра-списки.
   _renderAllLists() {
     this._renderRegularContainer();
     this._renderRegularList();
@@ -382,6 +420,11 @@ export default class Filmboard {
         break;
       case UpdateType.MAJOR:
         this._clearBoard({resetRenderedFilmCount: true, resetSortType: true, resetAllLists: true});
+        this._renderAllLists();
+        break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingListComp);
         this._renderAllLists();
         break;
     }

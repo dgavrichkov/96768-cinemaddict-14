@@ -1,3 +1,5 @@
+import FilmsModel from './model/movies.js';
+
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
@@ -12,10 +14,35 @@ export default class Api {
   constructor(endPoint, authorization) {
     this._endPoint = endPoint;
     this._authorization = authorization;
+    // this.getFilmComments = this.getFilmComments.bind(this);
   }
 
   getFilms() {
     return this._load({url: 'movies'})
+      .then(Api.toJSON)
+      // .then(((films) => films.map(this._getFilmComments)))
+      .then((films) => films.map(FilmsModel.adaptToClient));
+  }
+
+  // getFilmComments(film) {
+  //   const filmComments = [];
+  //   this._load({url: `comments/${film.id}`})
+  //     .then(Api.toJSON)
+  //     .then((comments) => {
+  //       filmComments.push(...comments);
+  //     });
+
+  //   return Object.assign(
+  //     {},
+  //     film,
+  //     {
+  //       comments: filmComments,
+  //     },
+  //   );
+  // }
+
+  getFilmComments(film) {
+    return this._load({url: `comments/${film.id}`})
       .then(Api.toJSON);
   }
 
@@ -63,4 +90,5 @@ export default class Api {
   static catchError(err) {
     throw err;
   }
+
 }

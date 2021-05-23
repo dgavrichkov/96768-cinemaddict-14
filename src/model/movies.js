@@ -6,8 +6,10 @@ export default class Movies extends Observer {
     this._films = [];
   }
 
-  setFilms(films) {
+  setFilms(updateType, films) {
     this._films = films.slice();
+
+    this._notify(updateType);
   }
 
   getFilms() {
@@ -28,5 +30,40 @@ export default class Movies extends Observer {
     ];
 
     this._notify(updateType, update);
+  }
+
+
+  static adaptToClient(film) {
+    const adaptedFilm = {
+      id: film.id,
+      name: film.film_info.title,
+      originName: film.film_info.alternative_title,
+      poster: film.film_info.poster,
+      description: film.film_info.description,
+      comments: film.comments,
+      rating: film.film_info.total_rating,
+      releaseDate: film.film_info.release.date,
+      runtime: film.film_info.runtime,
+      genres: film.film_info.genre,
+      ageRating: film.film_info.age_rating,
+      director: film.film_info.director,
+      country: film.film_info.release.release_country,
+      writers: film.film_info.writers,
+      actors: film.film_info.actors,
+      watchlist: film.user_details.watchlist,
+      alreadyWatched: film.user_details.already_watched,
+      watchingDate: film.user_details.watching_date,
+      favorite: film.user_details.favorite,
+    };
+
+    // console.log(adaptedFilm);
+    return adaptedFilm;
+  }
+
+  static adaptToServer(film) {
+    const adaptedFilm = Object.assign(
+      {},
+      film,
+    );
   }
 }

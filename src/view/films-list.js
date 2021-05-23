@@ -12,6 +12,9 @@ const createFilmsListTemplate = (isExtra, dataId) => {
     case 'empty':
       title = '<h2 class="films-list__title">There are no movies in our database</h2>';
       break;
+    case 'loading':
+      title = '<h2 class="films-list__title">Loading...</h2>';
+      break;
     default:
       title = '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>';
   }

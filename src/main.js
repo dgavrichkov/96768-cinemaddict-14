@@ -3,28 +3,22 @@ import SiteStatView from './view/statistics.js';
 import UserStatView from './view/user-statistics.js';
 import FilmBoard from './presenters/filmboard.js';
 import Filter from './presenters/filter.js';
-import {generateFilm} from './mock/film.js';
+// import {generateFilm} from './mock/film.js';
 import {render, RenderPosition, remove} from './utils/render.js';
 import {getUserFilms} from './utils/film.js';
 import FilmsModel from './model/movies.js';
 import FilterModel from './model/filter.js';
+import {UpdateType} from './const.js';
 import Api from './api.js';
 
-const FILMS_COUNT = 22;
+// const FILMS_COUNT = 22;
 const AUTHORIZATION = 'Basic rS56dwqGGG4sdasd53dfe';
 const END_POINT = 'https://14.ecmascript.pages.academy/cinemaddict';
 
 
-const films = new Array(FILMS_COUNT).fill().map(generateFilm);
+// const films = new Array(FILMS_COUNT).fill().map(generateFilm);
 const api = new Api(END_POINT, AUTHORIZATION);
 
-api.getFilms().then((films) => {
-  console.log(films);
-  // Есть проблема: cтруктура объекта похожа, но некоторые ключи называются иначе,
-  // а ещё на сервере используется snake_case, а у нас camelCase.
-  // Можно, конечно, переписать часть нашего клиентского приложения, но зачем?
-  // Есть вариант получше - паттерн "Адаптер"
-});
 
 const siteHeaderEl = document.querySelector('.header');
 const siteMainEl = document.querySelector('.main');
@@ -32,10 +26,10 @@ const siteFooterEl = document.querySelector('.footer');
 
 const modelFilter = new FilterModel();
 const modelFilms = new FilmsModel();
-modelFilms.setFilms(films);
+// modelFilms.setFilms(films);
 
 const filterPresenter = new Filter(siteMainEl, modelFilter, modelFilms);
-const boardPresenter = new FilmBoard(siteMainEl, modelFilms, modelFilter);
+const boardPresenter = new FilmBoard(siteMainEl, modelFilms, modelFilter, api);
 
 let profileComp = null;
 
@@ -55,7 +49,7 @@ boardPresenter.init();
 
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
 
-render(footerStat, new SiteStatView(films), RenderPosition.BEFOREEND);
+render(footerStat, new SiteStatView(modelFilms.getFilms()), RenderPosition.BEFOREEND);
 
 
 let userStatComp = null;
@@ -103,3 +97,12 @@ const handleModelEvent = () => {
 modelFilms.addObserver(handleModelEvent);
 modelFilms.addObserver(setScreenSwitchHandler);
 modelFilter.addObserver(setScreenSwitchHandler);
+
+
+api.getFilms()
+  .then((films) => {
+    modelFilms.setFilms(UpdateType.INIT, films);
+  })
+  .catch(() => {
+    modelFilms.setFilms(UpdateType.INIT, []);
+  });
