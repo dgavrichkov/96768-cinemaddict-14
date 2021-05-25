@@ -36,6 +36,7 @@ const createNewCommentEmojiImg = (emoji) => {
 };
 
 export const createFilmDetailsTemplate = (film) => {
+  console.log(film);
   const {
     name,
     originName,
@@ -56,15 +57,20 @@ export const createFilmDetailsTemplate = (film) => {
     isFavorite,
     stateNewCmtEmoji,
     stateNewCmtText,
+    stateFilmComments,
   } = film;
 
   const genreItemsList = genres.map((genre) => {
     return createGenreItem(genre);
   }).join('');
 
-  const commentsList = comments.map((comment) => {
-    return createCommentItem(comment);
-  }).join('');
+  let commentsList = [];
+  if(stateFilmComments) {
+    commentsList = stateFilmComments.map((comment) => {
+      return createCommentItem(comment);
+    }).join('');
+  }
+
 
   const newCommentImg = createNewCommentEmojiImg(stateNewCmtEmoji);
 
@@ -78,7 +84,7 @@ export const createFilmDetailsTemplate = (film) => {
             <div class="film-details__poster">
               <img class="film-details__poster-img" src="${poster}" alt="${name}">
 
-              <p class="film-details__age">${ageRating}</p>
+              <p class="film-details__age">${ageRating}+</p>
             </div>
 
             <div class="film-details__info">
@@ -190,9 +196,9 @@ export const createFilmDetailsTemplate = (film) => {
 };
 
 export default class FilmDetails extends SmartView {
-  constructor(film) {
+  constructor(film, comments) {
     super();
-    this._state = FilmDetails.parseDataToState(film);
+    this._state = FilmDetails.parseDataToState(film, comments);
 
     this._clickCloseHandler = this._clickCloseHandler.bind(this);
     this._clickFavoriteHandler = this._clickFavoriteHandler.bind(this);
@@ -319,6 +325,13 @@ export default class FilmDetails extends SmartView {
     watchedTrg.addEventListener('click', this._clickWatchedHandler);
   }
 
+  setFilmComments(comments) {
+    this.updateData({
+      stateFilmComments: comments,
+      scrollPos: this.getElement().scrollTop,
+    });
+  }
+
   // устанавливает позицию скролла. Метод публичен, так как его вызывает презентер при перерисовке попапа
   setScrollPos() {
     if(this._state.scrollPos !== 0) {
@@ -335,8 +348,8 @@ export default class FilmDetails extends SmartView {
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setScrollPos();
   }
-  // Переданные данные превращает в состояние. Вызывается всякий раз при создании экземпляра.
-  static parseDataToState(film) {
+
+  static parseDataToState(film, comments) {
     return Object.assign(
       {},
       film,
@@ -346,14 +359,12 @@ export default class FilmDetails extends SmartView {
         isWatchlist: film.watchlist,
         stateNewCmtText: null,
         stateNewCmtEmoji: null,
+        stateFilmComments: comments,
       },
     );
   }
-  // метод, который пока еще не пригодился. должен вызываться тогда, когда вследствие изменения состояния нужно будет изменить данные. Результат вызова попадет в метод презентера, который будет вызывать изменение модели.
+
   static parseStateToData(state) {
-
-    //
-
     state = Object.assign({}, state);
 
     delete state.isFavorite;
@@ -361,6 +372,7 @@ export default class FilmDetails extends SmartView {
     delete state.isWatchlist;
     delete state.stateNewCmtText;
     delete state.stateNewCmtEmoji;
+    delete state.stateFilmComments;
 
     return state;
   }

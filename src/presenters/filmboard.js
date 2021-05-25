@@ -165,18 +165,9 @@ export default class Filmboard {
   }
 
   _renderPopup(film) {
-    const popupComponent = new FilmDetailsView(film);
 
-    // вот где-то тут мне надо делать запрос на сервер, чтобы получить комментарии
-    this._api.getFilmComments(film)
-      .then((comments) => {
-        comments.forEach((comment) => {
-          console.log(comment);
-        });
-      })
-      .catch(() => {
-        console.log('no comments');
-      });
+
+    const popupComponent = new FilmDetailsView(film);
 
     const clickOutPopup = (e) => {
       if (!e.target.closest('.film-details')) {
@@ -270,6 +261,15 @@ export default class Filmboard {
       this._openedPopup = popupComponent;
       popupComponent.setScrollPos();
     }
+
+    this._api.getFilmComments(film)
+      .then((comments) => {
+        popupComponent.setFilmComments(comments);
+      })
+      .catch(() => {
+        console.log('no comments');
+      });
+
   }
 
   _popupOnClose(popup) {
