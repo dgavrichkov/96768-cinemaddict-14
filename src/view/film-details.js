@@ -1,8 +1,14 @@
 import SmartView from './smart.js';
-import {defindRateColor, formatCommentDate, defindGenreSign, minutesToFormat, createComment} from '../utils/film.js';
+import {
+  defindRateColor,
+  formatCommentDate,
+  formatReleaseDate,
+  defindGenreSign,
+  minutesToFormat,
+  createComment
+} from '../utils/film.js';
 import {keyCombo} from '../utils/common.js';
 import he from 'he';
-
 
 const createGenreItem = (genre) => {
   return `<span class="film-details__genre">${genre}</span>`;
@@ -119,7 +125,7 @@ export const createFilmDetailsTemplate = (film) => {
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Release Date</td>
-                  <td class="film-details__cell">${releaseDate}</td>
+                  <td class="film-details__cell">${formatReleaseDate(releaseDate)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Runtime</td>

@@ -30,6 +30,10 @@ export const formatCommentDate = (date) => {
   return dayjs().from(date, true) + ' ago';
 };
 
+export const formatReleaseDate = (dateString) => {
+  return dayjs(dateString).format('D MMM YYYY');
+};
+
 export const defindGenreSign = (list) => {
   return (list.length > 1) ? 'Genres' : 'Genre';
 };
