@@ -48,9 +48,18 @@ filterPresenter.init();
 boardPresenter.init();
 
 const footerStat = siteFooterEl.querySelector('.footer__statistics');
+let footerStatComp = null;
 
-render(footerStat, new SiteStatView(modelFilms.getFilms()), RenderPosition.BEFOREEND);
+const renderFooterStat = (films) => {
+  if(footerStatComp !== null) {
+    remove(footerStatComp);
+    footerStatComp = null;
+  }
+  footerStatComp = new SiteStatView(modelFilms.getFilms());
+  render(footerStat, footerStatComp, RenderPosition.BEFOREEND);
+};
 
+renderFooterStat(modelFilms.getFilms());
 
 let userStatComp = null;
 let isStatOpen = false;
@@ -102,6 +111,7 @@ modelFilter.addObserver(setScreenSwitchHandler);
 api.getFilms()
   .then((films) => {
     modelFilms.setFilms(UpdateType.INIT, films);
+    renderFooterStat(modelFilms.getFilms());
   })
   .catch(() => {
     modelFilms.setFilms(UpdateType.INIT, []);
