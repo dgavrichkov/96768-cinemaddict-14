@@ -76,9 +76,9 @@ export const getFilmsOnPeriod = (films, period) => {
     return films;
   }
   const chosen = films.filter((film) => {
-    return dayjs(film.watchingDate.toDate()).isSame(periodDate) ||
-      dayjs(film.watchingDate.toDate()).isBetween(periodDate, currentDate) ||
-      dayjs(film.watchingDate.toDate()).isSame(currentDate);
+    return dayjs(dayjs(film.watchingDate).toDate()).isSame(periodDate) ||
+      dayjs(dayjs(film.watchingDate).toDate()).isBetween(periodDate, currentDate) ||
+      dayjs(dayjs(film.watchingDate).toDate()).isSame(currentDate);
   });
   return chosen;
 
