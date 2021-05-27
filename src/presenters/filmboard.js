@@ -265,11 +265,7 @@ export default class Filmboard {
     this._api.getFilmComments(film)
       .then((comments) => {
         popupComponent.setFilmComments(comments);
-      })
-      .catch(() => {
-        console.log('no comments');
       });
-
   }
 
   _popupOnClose(popup) {

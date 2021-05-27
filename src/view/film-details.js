@@ -9,9 +9,6 @@ const createGenreItem = (genre) => {
 };
 
 const createCommentItem = (commentObj) => {
-  if(typeof commentObj !== 'object') {
-    return;
-  }
   const {id, emotion, comment, author, date} = commentObj;
   return `<li class="film-details__comment" data-cmt-id="${id}">
       <span class="film-details__comment-emoji">
@@ -31,12 +28,15 @@ const createCommentItem = (commentObj) => {
   `;
 };
 
+const createErrorMessage = (message) => {
+  return `<div><b>${message}</b></div>`;
+};
+
 const createNewCommentEmojiImg = (emoji) => {
   return `<img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">`;
 };
 
 export const createFilmDetailsTemplate = (film) => {
-  console.log(film);
   const {
     name,
     originName,
@@ -58,6 +58,7 @@ export const createFilmDetailsTemplate = (film) => {
     stateNewCmtEmoji,
     stateNewCmtText,
     stateFilmComments,
+    isLoading,
   } = film;
 
   const genreItemsList = genres.map((genre) => {
@@ -65,12 +66,16 @@ export const createFilmDetailsTemplate = (film) => {
   }).join('');
 
   let commentsList = [];
+
   if(stateFilmComments) {
     commentsList = stateFilmComments.map((comment) => {
       return createCommentItem(comment);
     }).join('');
+  } else if(isLoading) {
+    commentsList = createErrorMessage('Loading..');
+  } else {
+    commentsList = createErrorMessage('No comments for this movie');
   }
-
 
   const newCommentImg = createNewCommentEmojiImg(stateNewCmtEmoji);
 
@@ -209,6 +214,7 @@ export default class FilmDetails extends SmartView {
     this._specialFormSubmitHandler = this._specialFormSubmitHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._setInnerHandlers();
+    this._isLoading = true;
   }
 
   getTemplate() {
@@ -326,9 +332,11 @@ export default class FilmDetails extends SmartView {
   }
 
   setFilmComments(comments) {
+    this._isLoading = false;
     this.updateData({
       stateFilmComments: comments,
       scrollPos: this.getElement().scrollTop,
+      isLoading: this._isLoading,
     });
   }
 
@@ -360,6 +368,7 @@ export default class FilmDetails extends SmartView {
         stateNewCmtText: null,
         stateNewCmtEmoji: null,
         stateFilmComments: comments,
+        isLoading: true,
       },
     );
   }
@@ -373,6 +382,7 @@ export default class FilmDetails extends SmartView {
     delete state.stateNewCmtText;
     delete state.stateNewCmtEmoji;
     delete state.stateFilmComments;
+    delete state.isLoading;
 
     return state;
   }
