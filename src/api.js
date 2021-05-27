@@ -14,32 +14,13 @@ export default class Api {
   constructor(endPoint, authorization) {
     this._endPoint = endPoint;
     this._authorization = authorization;
-    // this.getFilmComments = this.getFilmComments.bind(this);
   }
 
   getFilms() {
     return this._load({url: 'movies'})
       .then(Api.toJSON)
-      // .then(((films) => films.map(this._getFilmComments)))
       .then((films) => films.map(FilmsModel.adaptToClient));
   }
-
-  // getFilmComments(film) {
-  //   const filmComments = [];
-  //   this._load({url: `comments/${film.id}`})
-  //     .then(Api.toJSON)
-  //     .then((comments) => {
-  //       filmComments.push(...comments);
-  //     });
-
-  //   return Object.assign(
-  //     {},
-  //     film,
-  //     {
-  //       comments: filmComments,
-  //     },
-  //   );
-  // }
 
   getFilmComments(film) {
     return this._load({url: `comments/${film.id}`})
@@ -50,10 +31,11 @@ export default class Api {
     return this._load({
       url: `movies/${film.id}`,
       method: Method.PUT,
-      body: JSON.stringify(film),
+      body: JSON.stringify(FilmsModel.adaptToServer(film)),
       headers: new Headers({'Content-Type': 'application/json'}),
     })
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then(FilmsModel.adaptToClient);
   }
 
   _load({
@@ -63,7 +45,6 @@ export default class Api {
     headers = new Headers(),
   }) {
     headers.append('Authorization', this._authorization);
-
     return fetch(
       `${this._endPoint}/${url}`,
       {method, body, headers},

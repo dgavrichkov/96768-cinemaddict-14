@@ -204,7 +204,6 @@ export default class FilmDetails extends SmartView {
   constructor(film, comments) {
     super();
     this._state = FilmDetails.parseDataToState(film, comments);
-
     this._clickCloseHandler = this._clickCloseHandler.bind(this);
     this._clickFavoriteHandler = this._clickFavoriteHandler.bind(this);
     this._clickWatchlistHandler = this._clickWatchlistHandler.bind(this);
@@ -335,7 +334,6 @@ export default class FilmDetails extends SmartView {
     this._isLoading = false;
     this.updateData({
       stateFilmComments: comments,
-      scrollPos: this.getElement().scrollTop,
       isLoading: this._isLoading,
     });
   }

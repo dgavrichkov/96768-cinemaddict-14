@@ -56,14 +56,37 @@ export default class Movies extends Observer {
       favorite: film.user_details.favorite,
     };
 
-    // console.log(adaptedFilm);
     return adaptedFilm;
   }
 
   static adaptToServer(film) {
-    const adaptedFilm = Object.assign(
-      {},
-      film,
-    );
+    const adaptedFilm = {
+      id: film.id,
+      film_info: {
+        actors: film.actors,
+        title: film.name,
+        alternative_title: film.originName,
+        poster: film.poster,
+        description: film.description,
+        director: film.director,
+        genre: film.genres,
+        runtime: film.runtime,
+        total_rating: film.rating,
+        release: {
+          date: film.releaseDate,
+          release_country: film.country,
+        },
+        age_rating: film.ageRating,
+        writers: film.writers,
+      },
+      comments: film.comments,
+      user_details: {
+        favorite: film.favorite,
+        watching_date: film.watchingDate,
+        already_watched: film.alreadyWatched,
+        watchlist: film.watchlist,
+      },
+    };
+    return adaptedFilm;
   }
 }

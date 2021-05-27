@@ -400,7 +400,14 @@ export default class Filmboard {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        this._filmsModel.updateFilm(updateType, update);
+
+        this._api.updateFilm(update)
+          .then((response) => {
+            if(update.scrollPos) {
+              response.scrollPos = update.scrollPos;
+            }
+            this._filmsModel.updateFilm(updateType, response);
+          });
         break;
     }
   }
@@ -437,7 +444,6 @@ export default class Filmboard {
 
   // функция выполняется при обновлении карточки
   _onFilmChange(updatedFilm) {
-
     const filmsToUpdate = this._prevFilmCards.filter((prev) => prev.getFilmId() === updatedFilm.id);
 
     filmsToUpdate.forEach((upd) => {

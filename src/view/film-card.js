@@ -19,7 +19,6 @@ const createFilmCardTemplate = (film) => {
     isWatched,
     isFavorite,
   } = film;
-
   const favoriteClass = isFavorite ? 'film-card__controls-item--active film-card__controls-item--favorite' : 'film-card__controls-item--favorite';
   const watchlistClass = isWatchlist
     ? 'film-card__controls-item--active film-card__controls-item--add-to-watchlist'
